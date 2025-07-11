@@ -64,44 +64,6 @@ buck-out/
 /ios/Pods/
 /vendor/bundle/
 
-
-
-# 여기부터는 새로 추가한 내용
-
-# iOS (추가)
-ios/build/
-ios/DerivedData/
-ios/*.xcworkspace/
-
-# Android (추가)
-android/.gradle/
-android/.idea/
-android/local.properties
-android/captures/
-
-# React Native / Metro / 환경변수
-.expo/
-.expo-shared/
-.env
-.env.*
-babel.config.js
-metro.config.js
-watchman.config.js
-
-# Editor config
-.vscode/
-*.code-workspace
-.idea/
-
-# Test coverage/output
-coverage/
-test-output/
-jest-html-reporters-*.html
-
-# 기타
-*.tmp
-*.temp
-*.bak
-*.swp
-*.orig
-*.lock
+# JVM 
+hs_err_pid*.log
+replay_pid*.log
