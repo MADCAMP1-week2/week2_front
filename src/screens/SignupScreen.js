@@ -15,6 +15,7 @@ import {
 import axios from 'axios';
 import Config from 'react-native-config';
 import {useNavigation} from '@react-navigation/native';
+import greetingStyles from '../styles/greetingStyles';
 
 const BACKEND_URL = Config.BACKEND_URL;
 
@@ -127,7 +128,7 @@ const SignupScreen = () => {
   }, [userInfo.id, passwordCheck]);
 
   return (
-    <View style={styles.container}>
+    <View style={greetingStyles.container}>
       <TextInput
         placeholder="닉네임을 입력해주세요."
         value={userInfo.nickname}
@@ -163,10 +164,3 @@ const SignupScreen = () => {
 };
 
 export default SignupScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-});

@@ -17,6 +17,7 @@ import axios from 'axios';
 import Config from 'react-native-config';
 import authStorage from '../services/authStorage';
 import DeviceInfo from 'react-native-device-info';
+import greetingStyles from '../styles/greetingStyles';
 
 const BACKEND_URL = Config.BACKEND_URL;
 
@@ -26,15 +27,6 @@ const LoginScreen = ({onLogin}) => {
     id: '',
     password: '',
   });
-  /*
-  useEffect(() => {
-    let isMounted = true; // 플래그 설정
-
-    // cleanup 함수에서 플래그 해제
-    return () => {
-      isMounted = false;
-    };
-  }, []);*/
 
   const handleIdChange = text => {
     setUserInfo(prev => ({...prev, id: text}));
@@ -86,7 +78,7 @@ const LoginScreen = ({onLogin}) => {
   };
 
   return (
-    <View>
+    <View style={greetingStyles.container}>
       <TextInput
         placeholder="아이디를 입력하세요"
         value={userInfo.id}
