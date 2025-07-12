@@ -67,3 +67,5 @@ buck-out/
 # JVM 
 hs_err_pid*.log
 replay_pid*.log
+
+.env
