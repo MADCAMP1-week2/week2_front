@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {
   Button,
   SafeAreaView,
@@ -14,8 +14,7 @@ import {
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-
-import authStorage from './src/services/authStorage';
+import {AuthContext, AuthProvider} from './contexts/AuthContext';
 
 import GreetingScreen from './src/screens/GreetingScreen';
 import LoginScreen from './src/screens/LoginScreen';
@@ -25,13 +24,11 @@ import SettingsScreen from './src/screens/SettingsScreen';
 
 // 탭 네비게이터
 const Tab = createBottomTabNavigator();
-function TabNavigator({onLogout}) {
+function TabNavigator() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Settings">
-        {() => <SettingsScreen onLogout={onLogout} />}
-      </Tab.Screen>
+      <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
 }
@@ -39,28 +36,12 @@ function TabNavigator({onLogout}) {
 // 스택 네비게이터
 const Stack = createNativeStackNavigator();
 
-function App() {
-  const isDarkMode = useColorScheme() === 'light';
+function AppContent() {
+  const {isLoggedIn} = useContext(AuthContext);
 
-  const [isLoading, setIsLoading] = useState(true); // 토큰 확인 중 상태
-  const [userToken, setUserToken] = useState(null); // 토큰 저장
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 여부
-
-  useEffect(() => {
-    // 로그인 상태를 asyncStorage에서 가져오기
-    const checkToken = async () => {
-      const {accessToken, refreshToken, id} = await authStorage.getToken();
-      if (accessToken && refreshToken && id) setIsLoggedIn(true);
-      setIsLoading(false);
-    };
-    checkToken();
-  }, []);
-
-  if (isLoading) {
-    // 토큰 확인하는 동안 로딩 화면 표시
+  if (isLoggedIn === null) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -72,28 +53,23 @@ function App() {
         {!isLoggedIn ? (
           <>
             <Stack.Screen name="Greeting" component={GreetingScreen} />
-            <Stack.Screen name="Login">
-              {() => <LoginScreen onLogin={() => setIsLoggedIn(true)} />}
-            </Stack.Screen>
+            <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Signup" component={SignupScreen} />
           </>
         ) : (
-          <Stack.Screen name="Main">
-            {() => <TabNavigator onLogout={() => setIsLoggedIn(false)} />}
-          </Stack.Screen>
+          <Stack.Screen name="Main" component={TabNavigator} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
 
 export default App;
