@@ -1,7 +1,7 @@
 import React, {createContext, useState, useEffect} from 'react';
-import authStorage from '../src/services/authStorage';
+import authStorage from '../services/authStorage';
 import {ToastAndroid} from 'react-native';
-import api, {setLogoutHandler} from '../src/api/client';
+import api, {setLogoutHandler} from '../api/index';
 import Config from 'react-native-config';
 
 const BACKEND_URL = Config.BACKEND_URL;

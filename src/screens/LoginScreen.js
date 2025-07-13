@@ -14,7 +14,7 @@ import {
   Form,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import {AuthContext} from '../../contexts/AuthContext';
+import {AuthContext} from '@contexts/AuthContext';
 import api from '../api/client';
 import greetingStyles from '../styles/greetingStyles';
 

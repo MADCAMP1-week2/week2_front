@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, Button, TextInput, Switch} from 'react-native';
 import authStorage from '../services/authStorage';
-import {AuthContext} from '../../contexts/AuthContext';
-import api from '../api/client';
+import {AuthContext} from '@contexts/AuthContext';
+import api from '../api/index';
 
 function SettingsScreen() {
   const [accessToken, setAccessToken] = useState(null);
