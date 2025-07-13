@@ -26,16 +26,25 @@ import LoginScreen from '@screens/LoginScreen';
 import SignupScreen from '@screens/SignupScreen';
 import HomeScreen from '@screens/HomeScreen';
 import SettingsScreen from '@screens/SettingsScreen';
-import MainScreen from '@screens/MainScreen'
+import MainScreen from '@screens/MainScreen';
+import AnimatedBottomBar from './src/components/Navigation/BottomBar';
 
 // 탭 네비게이터
 const Tab = createBottomTabNavigator();
 function TabNavigator() {
   return (
-    <Tab.Navigator>
-      <Tab.Screen name="Home" component={MainScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+    <View style={{ flex: 1 }}>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarStyle: { display: 'none' }, // 기본 탭 바 숨김
+          }}
+        >
+          <Tab.Screen name="Home" component={MainScreen} />
+          <Tab.Screen name="Settings" component={SettingsScreen} />
+        </Tab.Navigator>
+      <AnimatedBottomBar />
+    </View>
   );
 }
 
