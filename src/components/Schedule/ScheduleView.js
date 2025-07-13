@@ -1,91 +1,101 @@
-import React, { useRef, useEffect } from 'react';
-import { View, ScrollView, StyleSheet, Text } from 'react-native';
-import dayjs from 'dayjs';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import { useSchedules } from '@hooks/useSchedules';
-import ScheduleBlock from './ScheduleBlock';
+import dayjs from 'dayjs';
+import { useSchedules } from '@hooks/useSchedules';  // 기존 훅 사용
 
-const hours = Array.from({ length: 24 }, (_, i) => i);
+const { height: SCREEN_H } = Dimensions.get('window');
+const HOUR_H = 60;     // 1시간 높이
 
 const ScheduleView = ({ date }) => {
-  const scrollRef = useRef(null);
-  const { data: schedules = [] } = useSchedules(date);
+  const { data, isLoading, isError } = useSchedules(date);
+  const schedules = Array.isArray(data) ? data : [];
+  const scrollY = useSharedValue(0);
 
-  useEffect(() => {
-    // Scroll to current hour on mount
-    const hour = dayjs().hour();
-    const offset = hour * 60; // simplistic, 60px per hour row height assumption
-    scrollRef.current?.scrollTo({ y: offset, animated: false });
+  // 현재 시각 Y 위치
+  const nowOffset = useMemo(() => {
+    const h = dayjs().hour();
+    const m = dayjs().minute();
+    return (h + m / 60) * HOUR_H;
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <ScrollView ref={scrollRef}>
-        {hours.map(h => (
-          <View key={h} style={styles.hourRow}>
-            <Text style={styles.hourText}>{h}</Text>
-            <View style={styles.hourContent}>
-              {schedules
-                .filter(s => Number(s.startTime.split(':')[0]) === h)
-                .map(s => (
-                  <ScheduleBlock key={s.id} item={s} />
-                ))}
-            </View>
+  const onScroll = useAnimatedScrollHandler(e => {
+    scrollY.value = e.contentOffset.y;
+  });
+
+  const redLineStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: nowOffset - scrollY.value }],
+  }));
+
+  const renderHour = ({ item: hour }) => (
+    <View style={styles.hour}>
+      <Text style={styles.hourLabel}>{hour}</Text>
+      {schedules
+        .filter(s => dayjs(s.start).hour() === hour)
+        .map(s => (
+          <View key={s.id} style={styles.eventBox}>
+            <Text numberOfLines={1} style={styles.eventText}>
+              {s.title}
+            </Text>
           </View>
         ))}
-      </ScrollView>
-      {/* Current time red line */}
-      <CurrentTimeLine />
-      {/* Gradient top & bottom fade */}
-      <LinearGradient
-        colors={['#ffffff', 'transparent']}
-        pointerEvents="none"
-        style={[styles.gradient, { top: 0 }]} />
-      <LinearGradient
-        colors={['transparent', '#ffffff']}
-        pointerEvents="none"
-        style={[styles.gradient, { bottom: 0 }]} />
+    </View>
+  );
+
+  return (
+    <View style={{ flex: 1 }}>
+      {/* 위·아래 페이드 */}
+      <LinearGradient colors={['#fff', 'transparent']} style={[styles.fade, { top: 0 }]} />
+      <LinearGradient colors={['transparent', '#fff']} style={[styles.fade, { bottom: 0 }]} />
+
+      <Animated.FlatList
+        data={[...Array(24).keys()]}          // 0~23
+        keyExtractor={i => String(i)}
+        renderItem={renderHour}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: SCREEN_H * 0.2 }}
+        getItemLayout={(_, i) => ({
+          length: HOUR_H,
+          offset: HOUR_H * i,
+          index: i,
+        })}
+      />
+
+      <Animated.View style={[styles.nowLine, redLineStyle]} />
     </View>
   );
 };
 
-const CurrentTimeLine = () => {
-  const now = dayjs();
-  const top = now.hour() * 60 + now.minute();
-  return <View style={[styles.line, { top }]} />;
-};
-
 const styles = StyleSheet.create({
-  container: {
-    height: 300,
+  hour: {
+    height: HOUR_H,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: '#e1e1e1',
+    justifyContent: 'flex-start',
+    paddingLeft: 48,
   },
-  hourRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    height: 60, // each hour row 60px
-    paddingHorizontal: 10,
-  },
-  hourText: {
-    width: 30,
-    fontSize: 12,
-    color: '#888',
-  },
-  hourContent: {
-    flex: 1,
-  },
-  line: {
+  hourLabel: { position: 'absolute', left: 8, top: 4, color: '#999' },
+  eventBox: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 2,
-    backgroundColor: 'red',
+    left: 48,
+    right: 8,
+    top: 4,
+    height: 52,
+    borderRadius: 8,
+    backgroundColor: '#E7D9FF',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
-  gradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 30,
-  },
+  eventText: { fontSize: 12, color: '#4a4a4a' },
+  nowLine: { position: 'absolute', left: 0, right: 0, height: 1.5, backgroundColor: 'red' },
+  fade: { position: 'absolute', left: 0, right: 0, height: 32, zIndex: 10 },
 });
 
 export default ScheduleView;

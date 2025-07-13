@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import axios from 'axios';
+import { checkIdAvailable, registerUser } from '@api/auth';
 import Config from 'react-native-config';
 import {useNavigation} from '@react-navigation/native';
 import greetingStyles from '../styles/greetingStyles';
@@ -62,14 +62,8 @@ const SignupScreen = () => {
       return;
     }
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/auth/check-id`, {
-        params: {id: userInfo.id},
-      });
-      if (response.data.available) {
-        setIsIdAvailable(true); // 중복되지 않는 아이디
-      } else {
-        setIsIdAvailable(false); // 중복된 아이디
-      }
+      const available = await checkIdAvailable(userInfo.id);
+      setIsIdAvailable(available);
     } catch (error) {
       console.error('⚠️ [ID 확인 오류] 서버 요청 중 오류 발생:', error.message);
       setIsIdAvailable(null);
@@ -98,10 +92,7 @@ const SignupScreen = () => {
     let isMounted = true; // 플래그 설정
 
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/api/auth/register`,
-        userInfo,
-      );
+      const response = await registerUser(userInfo);
       console.log('✅ [회원가입 성공]', response.data);
 
       if (isMounted) {

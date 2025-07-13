@@ -1,4 +1,7 @@
 import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 import React, {useContext} from 'react';
 import {
   Button,
@@ -11,6 +14,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -37,6 +41,9 @@ function TabNavigator() {
 
 // 스택 네비게이터
 const Stack = createNativeStackNavigator();
+
+// 리액트 쿼리
+const queryClient = new QueryClient();
 
 function AppContent() {
   const {isLoggedIn} = useContext(AuthContext);
@@ -68,9 +75,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 

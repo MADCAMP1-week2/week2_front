@@ -1,17 +1,11 @@
 import axios from 'axios';
-import { getToken, storeToken, removeToken } from '@services/authStorage';
+import authStorage from '@services/authStorage'; // ✅ default import
 import Config from 'react-native-config';
 
 const api = axios.create({ baseURL: Config.BACKEND_URL });
 
-let logoutHandler = null;
-
-export const setLogoutHandler = handler => {
-  logoutHandler = handler;
-};
-
 api.interceptors.request.use(async config => {
-  const { accessToken } = await getToken();
+  const { accessToken } = await authStorage.getToken();
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
   return config;
 });
@@ -34,7 +28,6 @@ api.interceptors.response.use(
     original._retry = true;
 
     if (refreshing) {
-      /* 이미 갱신 중이면 큐에 등록 후 대기 */
       return new Promise((resolve, reject) => {
         queue.push({ resolve, reject });
       }).then(token => {
@@ -45,14 +38,19 @@ api.interceptors.response.use(
 
     try {
       refreshing = true;
-      const { refreshToken, id } = await getToken();
+      const { refreshToken, user } = await authStorage.getToken();
 
       const { data } = await axios.post(
-        'http://<YOUR_BACKEND>:4000/api/auth/refresh',
-        { id, refreshToken }
+        `${Config.BACKEND_URL}/api/auth/refresh`,
+        { id: user?.id, refreshToken }
       );
 
-      await setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken, id });
+      await authStorage.storeToken({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        user: { id: user?.id },
+      });
+
       api.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
       processQueue(null, data.accessToken);
 
@@ -60,7 +58,7 @@ api.interceptors.response.use(
       return api(original);
     } catch (refreshErr) {
       processQueue(refreshErr, null);
-      await clearToken();                              // 로그아웃
+      await authStorage.clearToken(); // ✅ logout fallback
       return Promise.reject(refreshErr);
     } finally {
       refreshing = false;

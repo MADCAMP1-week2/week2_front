@@ -84,73 +84,74 @@ function SettingsScreen() {
   };
 
   return (
-    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-      <Text>설정 화면</Text>
-      <Button
-        title="현재 기기에서 로그아웃"
-        onPress={() => logout('로그아웃되었습니다.', false)}
-      />
-      <Button
-        title="모든 기기에서 로그아웃"
-        onPress={() => logout('모든 기기에서 로그아웃되었습니다.', true)}
-      />
-      <Button
-        title="로그인한 기기 보기"
-        onPress={() => {
-          fetchLoginDevices();
-        }}
-      />
-      {devices.length > 0 && (
-        <View>
-          <Text>로그인된 기기 목록:</Text>
-          {devices.map((device, index) => (
-            <View key={device.deviceId || index}>
-              <Text>📱 기기 ID: {device.deviceId}</Text>
-              <Text>🕒 만료 날짜: {device.expiresAt}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-      <View>
-        <TextInput
-          placeholder="새로운 카테고리"
-          value={newCategory.name}
-          onChangeText={handleNewCategoryName}
-        />
-        <TextInput
-          placeholder="색상코드"
-          value={newCategory.color}
-          onChangeText={handleNewCategoryColor}
-        />
-        <View>
-          <Text>공개</Text>
-          <Switch
-            value={newCategory.isPublic}
-            onValueChange={handleNewCategoryIsPublic}
-          />
-        </View>
-        <Button
-          title="카테고리 추가"
-          onPress={() => {
-            AddCategory();
-          }}
-        />
-      </View>
+    // <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+    //   <Text>설정 화면</Text>
+    //   <Button
+    //     title="현재 기기에서 로그아웃"
+    //     onPress={() => logout('로그아웃되었습니다.', false)}
+    //   />
+    //   <Button
+    //     title="모든 기기에서 로그아웃"
+    //     onPress={() => logout('모든 기기에서 로그아웃되었습니다.', true)}
+    //   />
+    //   <Button
+    //     title="로그인한 기기 보기"
+    //     onPress={() => {
+    //       fetchLoginDevices();
+    //     }}
+    //   />
+    //   {devices.length > 0 && (
+    //     <View>
+    //       <Text>로그인된 기기 목록:</Text>
+    //       {devices.map((device, index) => (
+    //         <View key={device.deviceId || index}>
+    //           <Text>📱 기기 ID: {device.deviceId}</Text>
+    //           <Text>🕒 만료 날짜: {device.expiresAt}</Text>
+    //         </View>
+    //       ))}
+    //     </View>
+    //   )}
+    //   <View>
+    //     <TextInput
+    //       placeholder="새로운 카테고리"
+    //       value={newCategory.name}
+    //       onChangeText={handleNewCategoryName}
+    //     />
+    //     <TextInput
+    //       placeholder="색상코드"
+    //       value={newCategory.color}
+    //       onChangeText={handleNewCategoryColor}
+    //     />
+    //     <View>
+    //       <Text>공개</Text>
+    //       <Switch
+    //         value={newCategory.isPublic}
+    //         onValueChange={handleNewCategoryIsPublic}
+    //       />
+    //     </View>
+    //     <Button
+    //       title="카테고리 추가"
+    //       onPress={() => {
+    //         AddCategory();
+    //       }}
+    //     />
+    //   </View>
 
-      {jsonCategories ? (
-        categories.length > 0 &&
-        categories.map(category => (
-          <View key={category._id}>
-            <Text style={{color: `${category.color}`}}>
-              {category.name}
-              {category.isPublic ? '(공개)' : '(비공개)'}
-            </Text>
-          </View>
-        ))
-      ) : (
-        <Text>카테고리 불러오는 중...</Text>
-      )}
-    </View>
+    //   {jsonCategories ? (
+    //     categories.length > 0 &&
+    //     categories.map(category => (
+    //       <View key={category._id}>
+    //         <Text style={{color: `${category.color}`}}>
+    //           {category.name}
+    //           {category.isPublic ? '(공개)' : '(비공개)'}
+    //         </Text>
+    //       </View>
+    //     ))
+    //   ) : (
+    //     <Text>카테고리 불러오는 중...</Text>
+    //   )}
+    // </View>
+    <Text>카테고리 불러오는 중...</Text>
   );
 }
 

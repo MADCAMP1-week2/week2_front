@@ -1,8 +1,10 @@
 import React, {createContext, useState, useEffect} from 'react';
 import authStorage from '../services/authStorage';
 import {ToastAndroid} from 'react-native';
-import api, {setLogoutHandler} from '../api/index';
 import Config from 'react-native-config';
+import { logoutRequest, setLogoutHandler } from '@api/auth';
+console.log('[DEBUG] setLogoutHandler =>', setLogoutHandler);
+
 
 const BACKEND_URL = Config.BACKEND_URL;
 
@@ -30,7 +32,7 @@ export const AuthProvider = ({children}) => {
     const url = `${BACKEND_URL}/api/auth/logout${logoutAll ? '-all' : ''}`;
 
     try {
-      const response = await api.delete(url);
+      const response = await logoutRequest(logoutAll);;
 
       if (response.status === 204) {
         console.log(
@@ -53,7 +55,7 @@ export const AuthProvider = ({children}) => {
     const checkToken = async () => {
       try {
         const tokens = await authStorage.getToken();
-        if (tokens?.accessToken && tokens?.refreshToken && tokens?.id) {
+        if (tokens?.accessToken && tokens?.refreshToken && tokens?.user?.id) {
           setIsLoggedIn(true);
         } else {
           setIsLoggedIn(false);

@@ -1,79 +1,78 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState, useContext, useRef} from 'react';
 import {
   View,
-  Text,
-  Image,
-  StyleSheet,
   TextInput,
   Button,
-  ScrollView,
   ToastAndroid,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  Form,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import {AuthContext} from '@contexts/AuthContext';
-import api from '../api/client';
+import {loginRequest} from '@api/auth';
 import greetingStyles from '../styles/greetingStyles';
 
 const LoginScreen = () => {
   const {login} = useContext(AuthContext);
 
+  const [userInfo, setUserInfo] = useState({id: '', password: ''});
   const [isLoading, setIsLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState({
-    id: '',
-    password: '',
-  });
 
-  const handleIdChange = text => {
-    setUserInfo(prev => ({...prev, id: text}));
-  };
+  /* ------------------------------------------------------------------ */
+  /* ① 마운트 여부 확인용 ref                                           */
+  /* ------------------------------------------------------------------ */
+  const isMounted = useRef(true);
+  useEffect(() => () => { isMounted.current = false; }, []);
 
-  const handlePwChange = text => {
-    setUserInfo(prev => ({...prev, password: text}));
-  };
+  /* ------------------------------------------------------------------ */
+  /* ② axios 취소 토큰(선택)                                            */
+  /* ------------------------------------------------------------------ */
+  const abortRef = useRef(null);     // AbortController 저장
 
   const handleLogin = async () => {
+    if (isLoading) return;           // 중복 클릭 방지
     setIsLoading(true);
 
     try {
-      const deviceId = await DeviceInfo.getUniqueId(); // deviceId
-      const payload = {...userInfo, deviceId: deviceId};
+      const deviceId = await DeviceInfo.getUniqueId();
+      const payload  = {...userInfo, deviceId};
 
-      console.log('📦 [로그인 요청] 전송할 정보:', payload);
+      /* AbortController 생성 & 저장 */
+      abortRef.current = new AbortController();
+      const res = await loginRequest(payload, abortRef.current.signal);
 
-      const response = await api.post(
-        `/api/auth/login`,
-        payload,
-        {validateStatus: status => status === 200 || status === 401}, // 200과 401을 정상 처리
-      );
+      if (!isMounted.current) return;             // 이미 화면이 사라졌다면 무시
 
-      if (response.status === 401) {
-        ToastAndroid.show(
-          '아이디 혹은 비밀번호가 올바르지 않습니다.',
-          ToastAndroid.SHORT,
-        );
-        setIsLoading(false);
+      if (res.status === 401) {
+        ToastAndroid.show('아이디 또는 비밀번호가 올바르지 않습니다.', ToastAndroid.SHORT);
         return;
       }
 
-      console.log('✅ [로그인 성공]', response.data.user);
+      const {accessToken, refreshToken, user} = res.data;
+      await login({accessToken, refreshToken, user}); // ↙︎ Main으로 네비게이션 (AuthContext 내부)
+      /* 여기서 LoginScreen 은 곧 언마운트됨 */
+    } catch (err) {
+      if (!isMounted.current) return;
 
-      // token과 id 정보 asyncStorage에 저장하기
-      const {accessToken, refreshToken, user} = response.data;
-      await login({accessToken, refreshToken, user});
-    } catch (error) {
-      if (error.response) {
-        console.error('❌ [로그인 실패]', error.response.data.message);
-      } else {
-        console.error('⚠️ [로그인 오류]:', error.message);
-      }
+      const msg =
+        err?.response?.data?.message ??
+        (err.name === 'CanceledError' ? '요청이 취소되었습니다.' : err.message);
+      ToastAndroid.show(`로그인 실패: ${msg}`, ToastAndroid.SHORT);
     } finally {
-      setIsLoading(false);
+      if (isMounted.current) setIsLoading(false);
     }
   };
+
+  /* ------------------------------------------------------------------ */
+  /* 언마운트 클린업 : axios 요청 취소                                   */
+  /* ------------------------------------------------------------------ */
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) abortRef.current.abort();
+    };
+  }, []);
+
+  /* ---------------------------- UI ---------------------------------- */
+  const handleIdChange = text => setUserInfo(p => ({...p, id: text}));
+  const handlePwChange = text => setUserInfo(p => ({...p, password: text}));
 
   return (
     <View style={greetingStyles.container}>
@@ -89,9 +88,9 @@ const LoginScreen = () => {
         secureTextEntry
       />
       <Button
-        title="로그인"
+        title={isLoading ? '로그인 중...' : '로그인'}
         onPress={handleLogin}
-        disabled={userInfo.id === '' || userInfo.password === '' || isLoading}
+        disabled={!userInfo.id || !userInfo.password || isLoading}
       />
     </View>
   );
