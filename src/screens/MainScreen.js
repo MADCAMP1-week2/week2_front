@@ -1,23 +1,42 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { SafeAreaView, StyleSheet, Dimensions, View } from 'react-native';
+import Animated, { useSharedValue, useDerivedValue } from 'react-native-reanimated';
+import LinearGradient from 'react-native-linear-gradient';
+
 import TopBar from '@components/TopBar/TopBar';
 import ScheduleView from '@components/Schedule/ScheduleView';
 import TodoList from '@components/Todo/TodoList';
 import HandleCalendarPanel from '@components/Calendar/HandleCalendarPanel';
-import HandleCalendarDemo from '../components/Calendar/HandleCalendarDemo';
+import HandleCalendarDemo from '@components/Calendar/HandleCalendarDemo';
 import { useHomeUIStore } from '@store/homeUIStore';
 
+
 const MainScreen = () => {
+  const y = useSharedValue(0); // or default to SNAP_Y[1]
+  const H = Dimensions.get('window').height;
+  const SNAP_Y = [H - 24, H - 160, 0];
+
+  const progress = useDerivedValue(() => {
+    return (y.value - SNAP_Y[2]) / (SNAP_Y[0] - SNAP_Y[2]);
+  });
   const { selectedDate } = useHomeUIStore();
   return (
-    <SafeAreaView style={styles.container}>
-      {/* 뒤 배경 dim/scale은 패널에서 제어 */}
+    <View style={{ flex: 1 }}>
+    {/* 배경 레이어 */}
+    <LinearGradient
+      colors={['#ffffff', '#f7f7f7', '#f7f7f7', '#f7f7f7', '#f7f7f7']}
+      style={StyleSheet.absoluteFill}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
+    />
+    
+    {/* 컨텐츠 레이어 */}
+    <SafeAreaView style={{ flex: 1 }}>
       <TopBar />
-      {/* <ScheduleView date={selectedDate} />
-      <TodoList date={selectedDate} />
-      <HandleCalendarPanel /> */}
-      <HandleCalendarDemo />
+      {/* Your components */}
+      <HandleCalendarDemo y={y} progress={progress} />
     </SafeAreaView>
+  </View>
   );
 };
 

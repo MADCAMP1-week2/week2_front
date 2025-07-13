@@ -33,18 +33,15 @@ import AnimatedBottomBar from './src/components/Navigation/BottomBar';
 const Tab = createBottomTabNavigator();
 function TabNavigator() {
   return (
-    <View style={{ flex: 1 }}>
-        <Tab.Navigator
-          screenOptions={{
-            headerShown: false,
-            tabBarStyle: { display: 'none' }, // 기본 탭 바 숨김
-          }}
-        >
-          <Tab.Screen name="Home" component={MainScreen} />
-          <Tab.Screen name="Settings" component={SettingsScreen} />
-        </Tab.Navigator>
-      <AnimatedBottomBar />
-    </View>
+    <Tab.Navigator
+      tabBar={(props) => <AnimatedBottomBar {...props} />}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen name="Home" component={MainScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
   );
 }
 
