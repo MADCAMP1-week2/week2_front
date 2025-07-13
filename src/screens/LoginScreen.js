@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import {
   View,
   Text,
@@ -13,15 +13,14 @@ import {
   Platform,
   Form,
 } from 'react-native';
-import axios from 'axios';
-import Config from 'react-native-config';
-import authStorage from '../services/authStorage';
 import DeviceInfo from 'react-native-device-info';
+import {AuthContext} from '../../contexts/AuthContext';
+import api from '../api/client';
 import greetingStyles from '../styles/greetingStyles';
 
-const BACKEND_URL = Config.BACKEND_URL;
+const LoginScreen = () => {
+  const {login} = useContext(AuthContext);
 
-const LoginScreen = ({onLogin}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({
     id: '',
@@ -39,42 +38,41 @@ const LoginScreen = ({onLogin}) => {
   const handleLogin = async () => {
     setIsLoading(true);
 
-    const deviceId = await DeviceInfo.getUniqueId(); // deviceId
-    const payload = {
-      ...userInfo,
-      deviceId: deviceId,
-    };
-
-    console.log('📦 [로그인 요청] 전송할 정보:', payload);
-
-    let isMounted = true; // 플래그 설정
-
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/api/auth/login`,
+      const deviceId = await DeviceInfo.getUniqueId(); // deviceId
+      const payload = {...userInfo, deviceId: deviceId};
+
+      console.log('📦 [로그인 요청] 전송할 정보:', payload);
+
+      const response = await api.post(
+        `/api/auth/login`,
         payload,
+        {validateStatus: status => status === 200 || status === 401}, // 200과 401을 정상 처리
       );
+
+      if (response.status === 401) {
+        ToastAndroid.show(
+          '아이디 혹은 비밀번호가 올바르지 않습니다.',
+          ToastAndroid.SHORT,
+        );
+        setIsLoading(false);
+        return;
+      }
 
       console.log('✅ [로그인 성공]', response.data.user);
 
-      if (isMounted) setIsLoading(false);
-
       // token과 id 정보 asyncStorage에 저장하기
       const {accessToken, refreshToken, user} = response.data;
-      await authStorage.storeToken(accessToken, refreshToken, user);
-      if (isMounted) onLogin();
+      await login({accessToken, refreshToken, user});
     } catch (error) {
-      if (isMounted) setIsLoading(false);
-
       if (error.response) {
         console.error('❌ [로그인 실패]', error.response.data.message);
       } else {
         console.error('⚠️ [로그인 오류]:', error.message);
       }
+    } finally {
+      setIsLoading(false);
     }
-    return () => {
-      isMounted = false; // 함수 끝날 때 플래그 해제
-    };
   };
 
   return (
