@@ -3,19 +3,25 @@ import {View, Text} from 'react-native';
 import authStorage from '../services/authStorage';
 
 function HomeScreen() {
-  const [id, setId] = useState('');
+  const [accessToken, setAccessToken] = useState(null);
+  const [refreshToken, setRefreshToken] = useState(null);
+  const [id, setId] = useState(null);
 
+  // 최초 1회 토큰 불러오기
   useEffect(() => {
-    const fetchNickname = async () => { // 내용 추가해서 닉네임 불러오는 것으로 수정
+    const loadTokens = async () => {
       try {
-        const tokenData = await authStorage.getToken();
-        setId(tokenData.id || '');
+        const tokens = await authStorage.getToken();
+        setAccessToken(tokens.accessToken);
+        setRefreshToken(tokens.refreshToken);
+        setId(tokens.user.id || '');
+        console.log('✅ [토큰 로딩 완료]:', tokens);
       } catch (error) {
-        console.error('❌ ID 불러오기 실패:', error);
+        console.error('❌ [토큰 로딩 실패]:', error);
       }
     };
 
-    fetchNickname();
+    loadTokens();
   }, []);
 
   return (
