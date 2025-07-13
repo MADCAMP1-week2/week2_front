@@ -1,77 +1,85 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, Button} from 'react-native';
+import React, {useState, useEffect, useContext} from 'react';
+import {View, Text, Button, TextInput, Switch} from 'react-native';
 import authStorage from '../services/authStorage';
-import axios from 'axios';
-import Config from 'react-native-config';
+import {AuthContext} from '../../contexts/AuthContext';
+import api from '../api/client';
 
-const BACKEND_URL = Config.BACKEND_URL;
-
-function SettingsScreen({onLogout}) {
+function SettingsScreen() {
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [id, setId] = useState(null);
 
-  // 로그인한 기기 관련
+  // 로그인한 기기
   const [devices, setDevices] = useState([]);
-  const [showDevices, setShowDevices] = useState(false);
 
-  // 최초 1회 토큰 불러오기
+  // 카테고리
+  const [newCategory, setNewCategory] = useState({
+    name: '',
+    color: '',
+    isPublic: false,
+  });
+  const [categories, setCategories] = useState([]);
+  const [jsonCategories, setJsonCategories] = useState(false);
+
+  const {logout} = useContext(AuthContext);
+
+  const handleNewCategoryName = text => {
+    setNewCategory(prev => ({...prev, name: text}));
+  };
+  const handleNewCategoryColor = text => {
+    setNewCategory(prev => ({...prev, color: text}));
+  };
+  const handleNewCategoryIsPublic = boolean => {
+    setNewCategory(prev => ({...prev, isPublic: boolean}));
+  };
+
   useEffect(() => {
-    const loadTokens = async () => {
+    const initialize = async () => {
       try {
+        // 최초 1회 토큰 불러오기
         const tokens = await authStorage.getToken();
         setAccessToken(tokens.accessToken);
         setRefreshToken(tokens.refreshToken);
         setId(tokens.id);
         console.log('✅ [토큰 로딩 완료]:', tokens);
+
+        // 카테고리 불러오기
+        await fetchUserCategories(tokens.accessToken);
       } catch (error) {
         console.error('❌ [토큰 로딩 실패]:', error);
       }
     };
 
-    loadTokens();
+    initialize();
   }, []);
 
-  const handleLogout = async logoutAll => {
-    if (!accessToken) {
-      console.warn('⛔ [accessToken 없음]: 로그아웃 요청을 중단합니다');
-      return;
-    }
-
-    const url = `${BACKEND_URL}/api/auth/logout${logoutAll ? '-all' : ''}`;
-
-    try {
-      const response = await axios.delete(url, {
-        headers: {Authorization: `Bearer ${accessToken}`},
-      });
-      if (response.status === 204) {
-        console.log(
-          `✅ [${logoutAll ? '모든 기기' : '현재 기기'}에서 로그아웃 완료]`,
-        );
-        await authStorage.removeToken(); // asyncStorage에서 삭제
-        onLogout();
-      }
-    } catch (error) {
-      console.error(
-        `❌ [${logoutAll ? '모든 기기' : '현재 기기'} 로그아웃 실패]:`,
-        error,
-      );
-    }
-  };
-
   const fetchLoginDevices = async () => {
-    if (!accessToken) {
-      console.warn('⛔ accessToken 없음: 요청을 중단합니다');
-      return;
-    }
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/auth/devices`, {
-        headers: {Authorization: `Bearer ${accessToken}`},
-      });
-      console.log(response.data);
+      const response = await api.get('/api/auth/devices');
       setDevices(response.data.devices);
     } catch (error) {
       console.error(`❌ [기기 불러오기 실패]:`, error);
+    }
+  };
+
+  const AddCategory = async () => {
+    try {
+      const response = await api.post('/api/categories', newCategory);
+      console.log('📂 [카테고리 추가 성공]:', response.data);
+      fetchUserCategories(accessToken);
+    } catch (error) {
+      console.error('❌ [카테고리 추가 실패]:', error);
+    }
+  };
+
+  const fetchUserCategories = async () => {
+    try {
+      const response = await api.get('/api/categories');
+      setCategories(response.data);
+      setJsonCategories(true);
+    } catch (error) {
+      console.error('카테고리 불러오기 에러:', error);
+      setCategories([]);
     }
   };
 
@@ -79,16 +87,12 @@ function SettingsScreen({onLogout}) {
     <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
       <Text>설정 화면</Text>
       <Button
-        title="로그아웃"
-        onPress={() => {
-          handleLogout(false);
-        }}
+        title="현재 기기에서 로그아웃"
+        onPress={() => logout('로그아웃되었습니다.', false)}
       />
       <Button
         title="모든 기기에서 로그아웃"
-        onPress={() => {
-          handleLogout(true);
-        }}
+        onPress={() => logout('모든 기기에서 로그아웃되었습니다.', true)}
       />
       <Button
         title="로그인한 기기 보기"
@@ -97,7 +101,7 @@ function SettingsScreen({onLogout}) {
         }}
       />
       {devices.length > 0 && (
-        <View style={{marginTop: 20}}>
+        <View>
           <Text>로그인된 기기 목록:</Text>
           {devices.map((device, index) => (
             <View key={device.deviceId || index}>
@@ -106,6 +110,45 @@ function SettingsScreen({onLogout}) {
             </View>
           ))}
         </View>
+      )}
+      <View>
+        <TextInput
+          placeholder="새로운 카테고리"
+          value={newCategory.name}
+          onChangeText={handleNewCategoryName}
+        />
+        <TextInput
+          placeholder="색상코드"
+          value={newCategory.color}
+          onChangeText={handleNewCategoryColor}
+        />
+        <View>
+          <Text>공개</Text>
+          <Switch
+            value={newCategory.isPublic}
+            onValueChange={handleNewCategoryIsPublic}
+          />
+        </View>
+        <Button
+          title="카테고리 추가"
+          onPress={() => {
+            AddCategory();
+          }}
+        />
+      </View>
+
+      {jsonCategories ? (
+        categories.length > 0 &&
+        categories.map(category => (
+          <View key={category._id}>
+            <Text style={{color: `${category.color}`}}>
+              {category.name}
+              {category.isPublic ? '(공개)' : '(비공개)'}
+            </Text>
+          </View>
+        ))
+      ) : (
+        <Text>카테고리 불러오는 중...</Text>
       )}
     </View>
   );
