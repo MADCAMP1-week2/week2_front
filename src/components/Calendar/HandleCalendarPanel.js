@@ -45,23 +45,9 @@ export default function HandleCalendarPanel({ y }) {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const isFlipping = useRef(false);
   function flipPage(delta) {
-    isFlipping.current = true;
-    setSelectedDate(prev => {
-      const next = dayjs(prev).add(delta, 'month');
-
-      /* pages 가 새로 그려진 뒤(한 프레임 후) 위치를 센터로 보정 */
-      requestAnimationFrame(() => {
-        runOnUI(() => {
-          offsetX.value   = -W;   // 센터 고정 (UI-thread)
-          translate.value = 0;    // 드래그 변위도 초기화
-        })();
-      });
-
-      return next;
+    requestAnimationFrame(() => {
+      setSelectedDate(prev => dayjs(prev).add(delta, 'month'));
     });
-    setTimeout(() => {
-      isFlipping.current = false; 
-    }, 0);
   }
   const viewMode = 'MONTH';                         // WEEK 모드는 당장 OFF
 
@@ -86,7 +72,21 @@ export default function HandleCalendarPanel({ y }) {
     transform: [{ translateX: offsetX.value + translate.value }],
   }));
 
-  useEffect(()=>{ y.value = withTiming(SNAP_Y[2 - panelSnap * 2], { duration: 300, easing: Easing.out(Easing.cubic) }); setVisible(panelSnap!==0); },[panelSnap]);
+  useEffect(()=>{ y.value = withTiming(SNAP_Y[2 - panelSnap * 2], { duration: 300, easing: Easing.out(Easing.cubic) });
+  setVisible(panelSnap!==0);
+  },[panelSnap]);
+
+  useEffect(() => {
+    setPages(buildPages(selectedDate));
+
+    // ✅ 렌더가 끝난 다음 프레임에 offsetX 리셋
+    requestAnimationFrame(() => {
+      runOnUI(() => {
+        offsetX.value = -W;
+        translate.value = 0;
+      })();
+    });
+  }, [selectedDate]);
 
   /* progress 0→0.5→1 */
   const progress = useDerivedValue(()=>
