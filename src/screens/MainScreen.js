@@ -11,13 +11,18 @@ import { useHomeUIStore } from '@store/homeUIStore';
 import TwoColumnLayout from '@components/TwoColumnLayout';
 
 const MainScreen = () => {
-  const y = useSharedValue(0); // or default to SNAP_Y[1]
   const H = Dimensions.get('window').height;
   const SNAP_Y = [H - 24, H - 160, 0];
+  const y = useSharedValue(SNAP_Y[0]); // or default to SNAP_Y[1]
+
 
   useEffect(() => {
     const today = new Date();
   useHomeUIStore.getState().setDate(today);
+  }, []);
+  useEffect(() => {
+    const today = new Date();
+  useHomeUIStore.getState().setToday(today);
   }, []);
 
   const progress = useDerivedValue(() =>
