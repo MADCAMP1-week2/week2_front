@@ -3,16 +3,19 @@
 // 2. Grid follows headerTranslate
 // 3. Mask marginTop animated with headerTranslate → gap 2px 유지
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
   useDerivedValue, useAnimatedGestureHandler, useAnimatedStyle,
-  withSpring, withDelay, withTiming, interpolate, Extrapolate, runOnJS,
+  withSpring, withDelay, withTiming, interpolate, Extrapolate, runOnJS, Easing
 } from 'react-native-reanimated';
 import { snapPoint } from 'react-native-redash';
 import { useHomeUIStore } from '@store/homeUIStore';
 import { useBottomBarStore } from '@store/bottomBarStore';
+import { getCalendarMatrix } from '@services/getCalendarMatrix';
+import dayjs from 'dayjs';
+import DayBox from './DateBox';
 
 /* ───────── Layout ───────── */
 const { height: H, width: W } = Dimensions.get('window');
@@ -31,19 +34,16 @@ const PROG   = { MIN:1, WEEK:0.5, MONTH:0 };
 const focusedRow = 2;
 const monthTitle = '7';
 
-/* ───────── Day Cell ───────── */
-const DayBox = ({ idx }) => (
-  <View style={[styles.dayBox, { backgroundColor: idx % 2 ? '#E4E0FF' : '#F5F3FF' }]}> 
-    <Text style={styles.dayText}>{idx + 1}</Text>
-  </View>
-);
-
 /* ───────── Main Component ───────── */
 export default function HandleCalendarPanel({ y }) {
   const { panelSnap, setSnap } = useHomeUIStore(s => ({ panelSnap: s.panelSnap, setSnap: s.setSnap }));
   const setVisible = useBottomBarStore(s => s.setVisible);
 
-  useEffect(()=>{ y.value = withSpring(SNAP_Y[2 - panelSnap * 2]); setVisible(panelSnap!==0); },[panelSnap]);
+  const calendarMatrix = useMemo(() => {
+    return getCalendarMatrix(viewedDate.getFullYear(), viewedDate.getMonth());
+  }, [viewedDate]);
+
+  useEffect(()=>{ y.value = withTiming(SNAP_Y[2 - panelSnap * 2], { duration: 300, easing: Easing.out(Easing.cubic) }); setVisible(panelSnap!==0); },[panelSnap]);
 
   /* progress 0→0.5→1 */
   const progress = useDerivedValue(()=>
@@ -63,7 +63,7 @@ export default function HandleCalendarPanel({ y }) {
   const gridShift = useDerivedValue(()=>
     interpolate(progress.value,[0.5,0],[-focusedRow*ROW_H,0],Extrapolate.CLAMP));
 
-  const maskH = useDerivedValue(()=> -gridShift.value + ROW_H*6);
+  const maskH = useDerivedValue(()=> -gridShift.value + ROW_H*(calendarMatrix.length /7));
 
   const handleScale = useDerivedValue(()=>
     interpolate(progress.value,[0.25,0],[1,0.5],Extrapolate.CLAMP));
@@ -76,13 +76,13 @@ export default function HandleCalendarPanel({ y }) {
   const gridSt   = useAnimatedStyle(()=>({ transform:[{translateY:gridShift.value}] }));
   const maskSt   = useAnimatedStyle(()=>({ marginTop:HEADER_H+GRID_GAP+headerTranslate.value, height:maskH.value, overflow:'hidden' }));
 
-  const rowStyles = Array.from({length:6},(_,row)=>{
+  const rowStyles = Array.from({length:(calendarMatrix.length /7)},(_,row)=>{
     if(row===focusedRow) return useAnimatedStyle(()=>({opacity:1}));
     const off=Math.abs(row-focusedRow); const st=0.5-off*0.1;
     return useAnimatedStyle(()=>({ opacity:interpolate(progress.value,[st,0],[0,1],Extrapolate.CLAMP), transform:[{translateY:interpolate(progress.value,[st,0],[0,0],Extrapolate.CLAMP)}] }));
   });
 
-  const handleExit=()=>{ if(panelSnap===0) setSnap(0.5); };
+  const handleExit=()=>{ if(panelSnap===0) setSnap(1); };
 
   return (
     <PanGestureHandler onGestureEvent={pan} activeOffsetY={[-25,25]}>
@@ -97,7 +97,13 @@ export default function HandleCalendarPanel({ y }) {
 
         <Animated.View style={[styles.mask,maskSt]}>
           <Animated.View style={[styles.monthGrid,gridSt]}>
-            {Array.from({length:6},(_,row)=>(<Animated.View key={row} style={[styles.row,rowStyles[row]]}>{Array.from({length:7},(_,col)=>(<DayBox key={col} idx={row*7+col}/>))}</Animated.View>))}
+            {Array.from({ length: calendarMatrix.length / 7 }, (_, row) => (
+              <Animated.View key={row} style={[styles.row, rowStyles[row]]}>
+                {calendarMatrix.slice(row * 7, row * 7 + 7).map((day, col) => (
+                  <DayBox key={col} date={day.date} inMonth={day.inMonth} />
+                ))}
+              </Animated.View>
+            ))}
           </Animated.View>
         </Animated.View>
       </Animated.View>
@@ -109,7 +115,7 @@ export default function HandleCalendarPanel({ y }) {
 const styles=StyleSheet.create({
   sheet:{position:'absolute',top:0,left:0,right:0,height:H_FULL,backgroundColor:'#fff'},
   handleBar:{alignSelf:'center',width:44,height:6,borderRadius:4,backgroundColor:'#bbb',marginVertical:10},
-  closeBtnWrap:{position:'absolute',alignSelf:'center',bottom:10,padding:4,zIndex:1},
+  closeBtnWrap:{position:'absolute',alignSelf:'center',bottom:30,padding:4,zIndex:1},
   closeText:{fontSize:18,color:'#666'},
   header:{position:'absolute',top:10,left:0,paddingHorizontal:20,paddingBottom:8},
   title:{fontSize:36,fontWeight:'600',color:'#222'},

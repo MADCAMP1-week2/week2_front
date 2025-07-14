@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { SafeAreaView, StyleSheet, Dimensions, View } from 'react-native';
 import Animated, { useSharedValue, useDerivedValue, interpolate, Extrapolate, useAnimatedStyle } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
@@ -14,6 +14,11 @@ const MainScreen = () => {
   const y = useSharedValue(0); // or default to SNAP_Y[1]
   const H = Dimensions.get('window').height;
   const SNAP_Y = [H - 24, H - 160, 0];
+
+  useEffect(() => {
+    const today = new Date();
+  useHomeUIStore.getState().setDate(today);
+  }, []);
 
   const progress = useDerivedValue(() =>
     interpolate(

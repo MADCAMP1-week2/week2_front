@@ -3,8 +3,6 @@ import authStorage from '../services/authStorage';
 import {ToastAndroid} from 'react-native';
 import Config from 'react-native-config';
 import { logoutRequest, setLogoutHandler } from '@api/auth';
-console.log('[DEBUG] setLogoutHandler =>', setLogoutHandler);
-
 
 const BACKEND_URL = Config.BACKEND_URL;
 
