@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, Dimensions, View } from 'react-native';
-import Animated, { useSharedValue, useDerivedValue } from 'react-native-reanimated';
+import Animated, { useSharedValue, useDerivedValue, interpolate, Extrapolate } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
 import TopBar from '@components/TopBar/TopBar';
@@ -16,9 +16,14 @@ const MainScreen = () => {
   const H = Dimensions.get('window').height;
   const SNAP_Y = [H - 24, H - 160, 0];
 
-  const progress = useDerivedValue(() => {
-    return (y.value - SNAP_Y[2]) / (SNAP_Y[0] - SNAP_Y[2]);
-  });
+  const progress = useDerivedValue(() =>
+    interpolate(
+      y.value,
+      [SNAP_Y[2], SNAP_Y[1], SNAP_Y[0]], // MONTH → WEEK → MIN
+      [0,         0.5,       1],
+      Extrapolate.CLAMP
+    )
+  );
   const { selectedDate } = useHomeUIStore();
   return (
     <View style={{ flex: 1 }}>
