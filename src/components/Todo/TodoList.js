@@ -11,7 +11,8 @@ const TodoList = ({ date }) => {
       data={todos}
       keyExtractor={item => item.id.toString()}
       renderItem={renderItem}
-      contentContainerStyle={{ paddingHorizontal: 16 }}
+      contentContainerStyle={{ paddingHorizontal: 16}}
+      style={{backgroundColor: "#eeeeee"}}
     />
   );
 };

@@ -1,127 +1,125 @@
+// HandleCalendarPanel.js — Header ↕ Animation & Consistent Gap (FINAL)
+// 1. DayHeader up (Week) / down +12 (Month) via headerTranslate
+// 2. Grid follows headerTranslate
+// 3. Mask marginTop animated with headerTranslate → gap 2px 유지
+
 import React, { useEffect } from 'react';
-import { Dimensions, StyleSheet, View, Pressable, Text } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  withSpring,
-  interpolate,
-  Extrapolate,
-  runOnJS,
-} from 'react-native-reanimated';
-import { clamp } from 'react-native-redash';
+import { Dimensions, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, {
+  useDerivedValue, useAnimatedGestureHandler, useAnimatedStyle,
+  withSpring, withDelay, withTiming, interpolate, Extrapolate, runOnJS,
+} from 'react-native-reanimated';
+import { snapPoint } from 'react-native-redash';
 import { useHomeUIStore } from '@store/homeUIStore';
-import WeeklyStrip from './WeeklyStrip';
-import MonthlyCalendar from './MonthlyCalendar';
+import { useBottomBarStore } from '@store/bottomBarStore';
 
-const SNAP_MIN = 0;
-const SNAP_WEEK = 0.5;
-const SNAP_MONTH = 1;
-const MAX_UP   = SCREEN_H - PANEL_H_MONTH;  // 가장 위
-const MAX_DOWN = SCREEN_H - PANEL_H_MIN;    // 가장 아래
+/* ───────── Layout ───────── */
+const { height: H, width: W } = Dimensions.get('window');
+const H_MIN = 32, H_WEEK = 150, H_NAVI = 65, H_FULL = H;
+const CELL_H = 75, H_GAP = 2, V_GAP = 7, ROW_H = CELL_H + V_GAP * 2;
+const HANDLE_AREA = 6 + 10 * 2; // handle height + marginVert
+const TITLE_AREA = 46;          // rough title block height
+const HEADER_H = 25;
 
-const { height: SCREEN_H } = Dimensions.get('window');
-const PANEL_H_MIN = 24;
-const PANEL_H_WEEK = 160;
-const PANEL_H_MONTH = SCREEN_H;
+const HEADER_TOP_WEEK = HANDLE_AREA + TITLE_AREA - 46; // 44
+const HEADER_DOWN_MONTH = 40;  // MonthView extra drop
+const GRID_GAP = 2;            // Header ↔ Grid gap
 
-const heightFor = snap => {
-  if (snap === SNAP_MIN) return PANEL_H_MIN;
-  if (snap === SNAP_WEEK) return PANEL_H_WEEK;
-  return PANEL_H_MONTH;
-};
+const SNAP_Y = [H - H_MIN - H_NAVI, H - H_WEEK - H_NAVI, 0]; // MIN, WEEK, MONTH
+const PROG   = { MIN:1, WEEK:0.5, MONTH:0 };
+const focusedRow = 2;
+const monthTitle = '7';
 
-const HandleCalendarPanel = () => {
-  const { panelSnap, setSnap } = useHomeUIStore();
-  const translateY = useSharedValue(SCREEN_H - heightFor(panelSnap));
+/* ───────── Day Cell ───────── */
+const DayBox = ({ idx }) => (
+  <View style={[styles.dayBox, { backgroundColor: idx % 2 ? '#E4E0FF' : '#F5F3FF' }]}> 
+    <Text style={styles.dayText}>{idx + 1}</Text>
+  </View>
+);
 
-  // 첫 위치 동기화
-  useEffect(() => {
-    translateY.value = SCREEN_H - heightFor(panelSnap);
-  }, [panelSnap]);
+/* ───────── Main Component ───────── */
+export default function HandleCalendarPanel({ y }) {
+  const { panelSnap, setSnap } = useHomeUIStore(s => ({ panelSnap: s.panelSnap, setSnap: s.setSnap }));
+  const setVisible = useBottomBarStore(s => s.setVisible);
 
-  const gesture = useAnimatedGestureHandler({
-    onStart: (_, ctx) => (ctx.startY = translateY.value),
-    onActive: (e, ctx) => (translateY.value = clamp(ctx.startY + e.translationY, MAX_UP, MAX_DOWN)),
-    onEnd: () => {
-      // 0~1 비율
-      const ratio = 1 - translateY.value / (SCREEN_H - PANEL_H_MIN);
-      let snap = SNAP_MIN;
-      if (ratio < 0.25) snap = SNAP_MIN;
-      else if (ratio < 0.75) snap = SNAP_WEEK;
-      else snap = SNAP_MONTH;
+  useEffect(()=>{ y.value = withSpring(SNAP_Y[2 - panelSnap * 2]); setVisible(panelSnap!==0); },[panelSnap]);
 
-      const target = SCREEN_H - heightFor(snap);
+  /* progress 0→0.5→1 */
+  const progress = useDerivedValue(()=>
+    interpolate(y.value, [SNAP_Y[2], SNAP_Y[1], SNAP_Y[0]],[0,0.5,1], Extrapolate.CLAMP));
 
-      translateY.value = withSpring(          // ✅ 애니메이션 **끝난 뒤** 상태 변경
-        target,
-        { damping: 15 },
-        finished => {
-          if (finished) runOnJS(setSnap)(snap);
-        },
-      );
-    },
+  /* gesture */
+  const pan = useAnimatedGestureHandler({
+    onStart:(_,ctx)=>{ if(panelSnap===0)return; ctx.start=y.value; },
+    onActive:(e,ctx)=>{ if(panelSnap===0)return; y.value=Math.max(Math.min(ctx.start+e.translationY,SNAP_Y[0]),SNAP_Y[2]); },
+    onEnd:()=>{ const dest=snapPoint(y.value,0,SNAP_Y); y.value=withSpring(dest,{damping:500,stiffness:300},()=>runOnJS(setSnap)(PROG[dest===SNAP_Y[0]?'MIN':dest===SNAP_Y[1]?'WEEK':'MONTH'])); }
   });
 
-  const panelStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  /* header & grid offset */
+  const headerTranslate = useDerivedValue(()=>
+    interpolate(progress.value,[0.5,0],[0,HEADER_DOWN_MONTH],Extrapolate.CLAMP));
 
-  const backdropStyle = useAnimatedStyle(() => {
-    const r = 1 - translateY.value / (SCREEN_H - PANEL_H_MIN); // 0→1
-    return {
-      opacity: interpolate(r, [0.5, 1], [0, 0.35], Extrapolate.CLAMP),
-      transform: [{ scale: interpolate(r, [0.5, 1], [1, 0.95], Extrapolate.CLAMP) }],
-    };
+  const gridShift = useDerivedValue(()=>
+    interpolate(progress.value,[0.5,0],[-focusedRow*ROW_H,0],Extrapolate.CLAMP));
+
+  const maskH = useDerivedValue(()=> -gridShift.value + ROW_H*6);
+
+  const handleScale = useDerivedValue(()=>
+    interpolate(progress.value,[0.25,0],[1,0.5],Extrapolate.CLAMP));
+
+  /* styles */
+  const sheetSt = useAnimatedStyle(()=>({ transform:[{translateY:y.value}], borderTopLeftRadius:interpolate(progress.value,[0.25,0],[20,0],Extrapolate.CLAMP), borderTopRightRadius:interpolate(progress.value,[0.25,0],[20,0],Extrapolate.CLAMP) }));
+  const handleBarSt = useAnimatedStyle(()=>({ opacity:interpolate(progress.value,[0,0.25],[0,1],Extrapolate.CLAMP), transform:[{scaleX:handleScale.value}]}) );
+  const titleSt = useAnimatedStyle(()=>({ opacity:interpolate(progress.value,[0.2,0.1],[0,1],Extrapolate.CLAMP) }));
+  const headerSt = useAnimatedStyle(()=>({ transform:[{translateY:headerTranslate.value}] }));
+  const gridSt   = useAnimatedStyle(()=>({ transform:[{translateY:gridShift.value}] }));
+  const maskSt   = useAnimatedStyle(()=>({ marginTop:HEADER_H+GRID_GAP+headerTranslate.value, height:maskH.value, overflow:'hidden' }));
+
+  const rowStyles = Array.from({length:6},(_,row)=>{
+    if(row===focusedRow) return useAnimatedStyle(()=>({opacity:1}));
+    const off=Math.abs(row-focusedRow); const st=0.5-off*0.1;
+    return useAnimatedStyle(()=>({ opacity:interpolate(progress.value,[st,0],[0,1],Extrapolate.CLAMP), transform:[{translateY:interpolate(progress.value,[st,0],[0,0],Extrapolate.CLAMP)}] }));
   });
+
+  const handleExit=()=>{ if(panelSnap===0) setSnap(0.5); };
 
   return (
-    <>
-      {/* 뒤 배경 딤 & 축소 */}
-      <Animated.View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, backdropStyle, { backgroundColor: '#000' }]}
-      />
+    <PanGestureHandler onGestureEvent={pan} activeOffsetY={[-25,25]}>
+      <Animated.View style={[styles.sheet,sheetSt]}>
+        <Animated.View style={[styles.handleBar,handleBarSt]} />
+        <Animated.View style={styles.closeBtnWrap}><TouchableOpacity onPress={handleExit}><Text style={styles.closeText}>✕</Text></TouchableOpacity></Animated.View>
+        <Animated.View style={[styles.header,titleSt]}><Text style={styles.title}>{monthTitle}</Text></Animated.View>
 
-      <PanGestureHandler onGestureEvent={gesture}>
-        <Animated.View style={[styles.sheet, panelStyle]}>
-          {panelSnap === SNAP_MONTH ? (
-            <Pressable style={styles.closeBtn} onPress={() => setSnap(SNAP_MIN)}>
-              <Text style={styles.closeText}>✕</Text>
-            </Pressable>
-          ) : (
-            <View style={styles.handleBar} />
-          )}
-
-          {panelSnap === SNAP_MONTH ? <MonthlyCalendar /> : <WeeklyStrip />}
+        <Animated.View style={[styles.dayHeader,headerSt]}>
+          {['일','월','화','수','목','금','토'].map((d,i)=>(<Text key={i} style={[styles.dayLabel,i===0&&styles.sun,i===6&&styles.sat]}>{d}</Text>))}
         </Animated.View>
-      </PanGestureHandler>
-    </>
+
+        <Animated.View style={[styles.mask,maskSt]}>
+          <Animated.View style={[styles.monthGrid,gridSt]}>
+            {Array.from({length:6},(_,row)=>(<Animated.View key={row} style={[styles.row,rowStyles[row]]}>{Array.from({length:7},(_,col)=>(<DayBox key={col} idx={row*7+col}/>))}</Animated.View>))}
+          </Animated.View>
+        </Animated.View>
+      </Animated.View>
+    </PanGestureHandler>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: PANEL_H_MONTH,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    overflow: 'hidden',
-  },
-  handleBar: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#ccc',
-    alignSelf: 'center',
-    marginVertical: 8,
-  },
-  closeBtn: { alignSelf: 'flex-end', padding: 12 },
-  closeText: { fontSize: 18 },
+/* ───────── Styles ───────── */
+const styles=StyleSheet.create({
+  sheet:{position:'absolute',top:0,left:0,right:0,height:H_FULL,backgroundColor:'#fff'},
+  handleBar:{alignSelf:'center',width:44,height:6,borderRadius:4,backgroundColor:'#bbb',marginVertical:10},
+  closeBtnWrap:{position:'absolute',alignSelf:'center',bottom:10,padding:4,zIndex:1},
+  closeText:{fontSize:18,color:'#666'},
+  header:{position:'absolute',top:10,left:0,paddingHorizontal:20,paddingBottom:8},
+  title:{fontSize:36,fontWeight:'600',color:'#222'},
+  dayHeader:{position:'absolute',top:HEADER_TOP_WEEK,left:0,width:W,height:HEADER_H,flexDirection:'row',justifyContent:'space-around',alignItems:'center'},
+  dayLabel:{width:W/7,textAlign:'center',fontSize:12,fontWeight:'500',color:'#444'},
+  sun:{color:'#D33'},
+  sat:{color:'#36C'},
+  dayBox:{width:W/7-H_GAP*2,height:CELL_H,marginHorizontal:H_GAP,marginVertical:V_GAP,justifyContent:'center',alignItems:'center',borderWidth:StyleSheet.hairlineWidth,borderColor:'#ddd',borderRadius:6},
+  dayText:{fontSize:11,color:'#555'},
+  mask:{width:W},
+  monthGrid:{flexDirection:'column'},
+  row:{flexDirection:'row',height:ROW_H},
 });
-
-export default HandleCalendarPanel;

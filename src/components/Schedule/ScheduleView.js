@@ -50,8 +50,7 @@ const ScheduleView = ({ date }) => {
   return (
     <View style={{ flex: 1 }}>
       {/* 위·아래 페이드 */}
-      <LinearGradient colors={['#fff', 'transparent']} style={[styles.fade, { top: 0 }]} />
-      <LinearGradient colors={['transparent', '#fff']} style={[styles.fade, { bottom: 0 }]} />
+      
 
       <Animated.FlatList
         data={[...Array(24).keys()]}          // 0~23
@@ -69,6 +68,8 @@ const ScheduleView = ({ date }) => {
       />
 
       <Animated.View style={[styles.nowLine, redLineStyle]} />
+      <LinearGradient colors={['#f7f7f7', 'transparent']} style={[styles.fade, { top: 0 }]} />
+      <LinearGradient colors={['transparent', '#f7f7f7']} style={[styles.fade, { bottom: 0 }]} />
     </View>
   );
 };
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
   },
   eventText: { fontSize: 12, color: '#4a4a4a' },
   nowLine: { position: 'absolute', left: 0, right: 0, height: 1.5, backgroundColor: 'red' },
-  fade: { position: 'absolute', left: 0, right: 0, height: 32, zIndex: 10 },
+  fade: { position: 'absolute', left: 0, right: 0, height: 32,  pointerEvernts: 'none' },
 });
 
 export default ScheduleView;
