@@ -2,17 +2,16 @@ import api from './index';
 import DeviceInfo from 'react-native-device-info';
 
 //login 요청
-export const loginRequest = async ({ id, password }) => {
-  const deviceId = await DeviceInfo.getUniqueId();
-  const payload = { id, password, deviceId };
-
+export const loginRequest = async (payload, signal) => {
+  console.log("hihi");
   const res = await api.post('/api/auth/login', payload, {
+    signal, // ← 추가
     validateStatus: status => status === 200 || status === 401,
   });
+  console.log("hihihi");
 
   return res;
 };
-
 // 아이디 중복 검사
 export const checkIdAvailable = async id => {
   const res = await api.get('/api/auth/check-id', {

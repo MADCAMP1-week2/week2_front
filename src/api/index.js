@@ -6,7 +6,9 @@ const api = axios.create({ baseURL: Config.BACKEND_URL });
 
 api.interceptors.request.use(async config => {
   const { accessToken } = await authStorage.getToken();
+  console.log("btbt");
   if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+  console.log("3423");
   return config;
 });
 
