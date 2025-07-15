@@ -26,7 +26,7 @@ export default function TwoColumnLayout({ progress }) {
 
 
   const containerSt = useAnimatedStyle(() => ({
-  height: interpolate(snapSV.value, [0, 0.5, 1], [360, 360, 475]),
+  height: interpolate(snapSV.value, [0, 0.5, 1], [330, 330, 445]),
 }));
 
   return (
@@ -48,10 +48,10 @@ const styles = StyleSheet.create({
   },
   schedule: {
     flex: 3, // 60%
-    padding: 7, 
+    padding: 4, 
   },
   todo: {
     flex: 7, // 40%
-    padding: 7, 
+    padding: 10, 
   },
 });

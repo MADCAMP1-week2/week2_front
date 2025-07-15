@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList } from 'react-native';
+import { View, FlatList, StyleSheet } from 'react-native';
 import { useTodos } from '@hooks/useTodos';
 import TodoItem from './TodoItem';
 
@@ -12,9 +12,16 @@ const TodoList = ({ date }) => {
       keyExtractor={item => item.id.toString()}
       renderItem={renderItem}
       contentContainerStyle={{ paddingHorizontal: 16}}
-      style={{backgroundColor: "#eeeeee"}}
+      style={styles.container}
     />
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#eeeeee",
+    borderRadius: 23
+  },
+});
 
 export default TodoList;

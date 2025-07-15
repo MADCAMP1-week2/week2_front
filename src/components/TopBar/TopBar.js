@@ -18,11 +18,12 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 20,
+    fontFamily: 'SCDream-Heavy',
     fontWeight: '600',
   },
   busyScore: {
     fontSize: 48,
-    fontWeight: '800',
+    fontFamily: 'SCDream-ExtraBold',
     color: 'red',
   },
   subtitle: {

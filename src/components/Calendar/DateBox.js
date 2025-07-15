@@ -17,7 +17,7 @@ export default function DayBox({ date, inMonth, style }) {
   const borderWidth = useSharedValue(0);
 
   useDerivedValue(() => {
-    scale.value = withTiming(selectedDateKey.value === key ? 1.1 : 1, { duration: 150 });
+    scale.value = withTiming(selectedDateKey.value === key ? 1.15 : 1, { duration: 150 });
     borderWidth.value = withTiming(selectedDateKey.value === key ? 1 : 0, { duration: 150 });
   });  
 
@@ -58,9 +58,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    borderColor: '#f3f3f3ff'
   },
   dayText: {
-    fontSize: 11,
-    fontWeight: '500',
+    position: 'absolute',
+    top: 10,
+    fontSize: 12,
+    fontFamily: 'SCDream-Medium'
   },
 });
