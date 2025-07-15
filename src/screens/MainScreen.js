@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import { SafeAreaView, StyleSheet, Dimensions, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Dimensions, View, Text } from 'react-native';
 import Animated, { useSharedValue, useDerivedValue, interpolate, Extrapolate, useAnimatedStyle } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -9,11 +9,13 @@ import TodoList from '@components/Todo/TodoList';
 import HandleCalendarPanel from '@components/Calendar/HandleCalendarPanel';
 import { useHomeUIStore } from '@store/homeUIStore';
 import TwoColumnLayout from '@components/TwoColumnLayout';
+import { State } from 'react-native-gesture-handler';
 
 const MainScreen = () => {
   const H = Dimensions.get('window').height;
   const SNAP_Y = [H - 24, H - 160, 0];
   const y = useSharedValue(SNAP_Y[0]); // or default to SNAP_Y[1]
+  const {setDate, setToday} = useHomeUIStore();
 
 
   useEffect(() => {
@@ -57,6 +59,7 @@ const MainScreen = () => {
         end={{ x: 0, y: 1 }}
       />
       <TopBar />
+      <Text>{useHomeUIStore(state => state.selectedDate).toDateString()}</Text>
       <TwoColumnLayout progress={progress} />
       
       {/* <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} /> */}

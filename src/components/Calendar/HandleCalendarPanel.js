@@ -32,9 +32,6 @@ const GRID_GAP = 2;            // Header ↔ Grid gap
 
 const SNAP_Y = [H - H_MIN - H_NAVI, H - H_WEEK - H_NAVI, 0]; // MIN, WEEK, MONTH
 const PROG   = { MIN:1, WEEK:0.5, MONTH:0 };
-const focusedRow = 2;
-const monthTitle = '7';
-
 
 
 /* ───────── Main Component ───────── */
@@ -43,7 +40,6 @@ export default function HandleCalendarPanel({ y }) {
   const setVisible = useBottomBarStore(s => s.setVisible);
 
   const [isNotGood, setIsNotGood] = useState(false);
-  const [focusedRow, setFocusedRow] = useState(2);
 
   const isFlipping = useRef(false);
   function flipPage(delta) {
@@ -66,6 +62,7 @@ export default function HandleCalendarPanel({ y }) {
   }, [globalDate]);
 
   const viewMode = 'MONTH';                         // WEEK 모드는 당장 OFF
+  const [focusedRow, setFocusedRow] = useState(2);
 
   /* 3-Page Slider: prev / current / next */
   const [pages, setPages] = useState(buildPages(dayjs())); // prev/current/next
@@ -229,13 +226,13 @@ const styles=StyleSheet.create({
   closeText:{fontSize:18,color:'#666'},
   header:{position:'absolute',top:10,left:0,paddingHorizontal:20,paddingBottom:8},
   title:{fontSize:36,fontWeight:'600',color:'#222'},
-  dayHeader:{position:'absolute',top:HEADER_TOP_WEEK,left:0,width:W,height:HEADER_H,flexDirection:'row',justifyContent:'space-around',alignItems:'center'},
-  dayLabel:{width:W/7,textAlign:'center',fontSize:12,fontWeight:'500',color:'#444'},
+  dayHeader:{position:'absolute',top:HEADER_TOP_WEEK,left:0,width:W,height:HEADER_H,flexDirection:'row',justifyContent: 'center',alignItems:'center'},
+  dayLabel:{width:W/7-2,textAlign:'center',fontSize:12,fontWeight:'500',color:'#444'},
   sun:{color:'#D33'},
   sat:{color:'#36C'},
-  dayBox:{width:W/7-H_GAP*2,height:CELL_H,marginHorizontal:H_GAP,marginVertical:V_GAP,justifyContent:'center',alignItems:'center',borderWidth:StyleSheet.hairlineWidth,borderColor:'#ddd',borderRadius:6},
+  dayBox:{width:W/7-H_GAP*2-2,height:CELL_H,marginHorizontal:H_GAP,marginVertical:V_GAP,justifyContent:'center',alignItems:'center',borderRadius:6},
   dayText:{fontSize:11,color:'#555'},
   mask:{width:W},
   monthGrid:{flexDirection:'column'},
-  row:{flexDirection:'row',height:ROW_H},
+  row:{flexDirection:'row',height:ROW_H, justifyContent: 'center'},
 });
