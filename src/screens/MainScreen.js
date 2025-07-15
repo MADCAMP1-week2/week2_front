@@ -11,9 +11,18 @@ import { useHomeUIStore } from '@store/homeUIStore';
 import TwoColumnLayout from '@components/TwoColumnLayout';
 import { State } from 'react-native-gesture-handler';
 
+const { height: H, width: W } = Dimensions.get('window');
+const H_MIN = 32, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
+const CELL_H = 75, H_GAP = 4, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
+const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
+const TITLE_H = 46, HEADER_H = 20;
+const HEADER_TOP_WEEK = HANDLE_H + HANDLE_MV * 2 + TITLE_H - 46;
+const HEADER_DOWN_MONTH = 40, GRID_GAP = 2;
+const SNAP_Y = [H - H_MIN - H_NAVI, H - H_WEEK - H_NAVI, 0];
+const PROG = { MIN: 1, WEEK: 0.5, MONTH: 0 };
+
 const MainScreen = () => {
   const H = Dimensions.get('window').height;
-  const SNAP_Y = [H - 24, H - 160, 0];
   const y = useSharedValue(SNAP_Y[0]); // or default to SNAP_Y[1]
   const {setDate, setToday} = useHomeUIStore();
 

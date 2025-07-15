@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Animated, {
   useDerivedValue,
   useAnimatedStyle,
   withTiming,
+  useSharedValue
 } from 'react-native-reanimated';
 import { useHomeUIStore } from '@store/homeUIStore';
 import dayjs from 'dayjs';
@@ -12,33 +13,25 @@ import { selectedDateKey } from './shared';
 export default function DayBox({ date, inMonth, style }) {
   const { setDate } = useHomeUIStore();
   const key = date.format('YYYY-MM-DD');
+  const scale = useSharedValue(1);
+  const borderWidth = useSharedValue(0);
 
-  const isSelected = useDerivedValue(() => selectedDateKey.value === key);
+  useDerivedValue(() => {
+    scale.value = withTiming(selectedDateKey.value === key ? 1.1 : 1, { duration: 150 });
+    borderWidth.value = withTiming(selectedDateKey.value === key ? 1 : 0, { duration: 150 });
+  });  
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const selected = isSelected.value;
-    return {
-      
-      transform: [
-        {
-          scale: withTiming(selected ? 1.15 : 1, { duration: 100 }),
-        },
-      ],
-      shadowColor: '#000',
-      shadowOpacity: withTiming(selected ? 0.25 : 0, { duration: 100 }),
-      shadowRadius: withTiming(selected ? 4 : 0, { duration: 100 }),
-      elevation: withTiming(selected ? 5 : 0, { duration: 100 }),
-
-      zIndex: selected ? 1 : 0,
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    borderWidth: borderWidth.value
+  }));
 
   // 요일 색상 처리
   const dayOfWeek = date.day();
   let color = '#000';
-  if (dayOfWeek === 0) color = inMonth ? '#D33' : '#fbb';
-  else if (dayOfWeek === 6) color = inMonth ? '#36C' : '#aad';
-  else color = inMonth ? '#000' : '#888';
+  if (dayOfWeek === 0) color = inMonth ? '#ED686A' : '#F08789';
+  else if (dayOfWeek === 6) color = inMonth ? '#5988EE' : '#90ADED';
+  else color = inMonth ? '#262626' : '#959595';
 
   return (
     <TouchableOpacity
@@ -61,7 +54,7 @@ const styles = StyleSheet.create({
   inner: {
     width: '100%',
     height: '100%',
-    borderRadius: 6,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',

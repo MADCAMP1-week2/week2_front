@@ -30,8 +30,8 @@ import DayBox from './DateBox';
 
 // ───────── Layout Const ─────────
 const { height: H, width: W } = Dimensions.get('window');
-const H_MIN = 32, H_WEEK = 150, H_NAVI = 65, H_FULL = H;
-const CELL_H = 75, H_GAP = 4, V_GAP = 5, ROW_H = CELL_H + V_GAP * 2;
+const H_MIN = 32, H_WEEK = 140, H_NAVI = 65, H_FULL = H;
+const CELL_H = 75, H_GAP = 2, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
 const TITLE_H = 46, HEADER_H = 20;
 const HEADER_TOP_WEEK = HANDLE_H + HANDLE_MV * 2 + TITLE_H - 46;
@@ -172,7 +172,11 @@ function getRowIndex(d /* dayjs */) {
 export default function HandleCalendarPanel({ y, progress }) {
   const { panelSnap, setSnap } = useHomeUIStore((s) => ({ panelSnap: s.panelSnap, setSnap: s.setSnap }));
   const setVisible = useBottomBarStore((s) => s.setVisible);
-  const [centerDate, setCenterDate] = useState(dayjs());
+  const selectedDate = useHomeUIStore(state => state.selectedDate);
+  const [centerDate, setCenterDate] = useState(dayjs(selectedDate));
+  useEffect(() => {
+    setCenterDate(dayjs(selectedDate));
+  }, [selectedDate]);
 
   // panelSnap 0(MONTH) 0.5(WEEK) 1(MIN)
   const viewMode = panelSnap === 0.5 ? 'WEEK' : 'MONTH';
@@ -182,8 +186,7 @@ export default function HandleCalendarPanel({ y, progress }) {
   // panel height 애니메이션 유지
   useEffect(() => {
     y.value = withTiming(SNAP_Y[2 - panelSnap * 2], { duration: 300, easing: Easing.out(Easing.cubic) });
-    setVisible(panelSnap !== 0);
-  }, [panelSnap]);
+  }, []);
 
   // 해당 week의 row번째
   const rowIdx = useMemo(() => getRowIndex(centerDate), [centerDate]);
@@ -202,28 +205,36 @@ export default function HandleCalendarPanel({ y, progress }) {
 
   // handle translate
   const handleOpacity = useDerivedValue(() =>
-    interpolate(progress.value, [0.25, 0], [1, 0], Extrapolate.CLAMP)
+    interpolate(progress.value, [0.25, 0], [1, 0.4], Extrapolate.CLAMP)
   );
   const handleTranslate = useDerivedValue(() =>
-    interpolate(progress.value, [0.25, 0], [1, 0.7], Extrapolate.CLAMP)
+    interpolate(progress.value, [0.25, 0], [1, 1.5], Extrapolate.CLAMP)
   );
-  const handleSt = useAnimatedStyle(() => ({ opacity:  handleTranslate.value, transform: [{ scaleX: handleTranslate.value }]}));
+  const handleSt = useAnimatedStyle(() => ({ opacity:  handleOpacity.value, transform: [{ scaleX: handleTranslate.value }]}));
 
   // calendar translate
   const monthShift = useDerivedValue(() =>
-    interpolate(progress.value, [0.45, 0], [-rowIdx*ROW_H, 0], Extrapolate.CLAMP)
+    interpolate(progress.value, [0.5, 0], [-rowIdx*ROW_H, 0], Extrapolate.CLAMP)
+  );
+
+  const monthOpaicity = useDerivedValue(() =>
+    interpolate(progress.value, [0.5, 0], [0, 1], Extrapolate.CLAMP)
   );
 
   const weekShift = useDerivedValue(() =>
-    interpolate(progress.value, [0.45, 0], [0, rowIdx*ROW_H], Extrapolate.CLAMP)
+    interpolate(progress.value, [0.5, 0], [0, rowIdx*ROW_H], Extrapolate.CLAMP)
   );
 
   const monthSt = useAnimatedStyle(() => ({
     transform: [{ translateY: monthShift.value }],
+    opacity: monthOpaicity.value,
+    pointerEvents: monthOpaicity.value < 0.5 ? 'none' : 'auto',
   }));
 
   const weekSt = useAnimatedStyle(() => ({
     transform: [{ translateY: weekShift.value }],
+    opacity: progress.value === 0 ? 0: 1,
+    pointerEvents: panelSnap === 0 ? 'none' : 'auto',
   }));
 
   // mask (grid clip)
@@ -243,12 +254,11 @@ export default function HandleCalendarPanel({ y, progress }) {
   return (
     <PanGestureHandler activeOffsetY={[-25, 25]} onGestureEvent={
       useAnimatedGestureHandler({
-        onStart: (_, ctx) => { ctx.start = y.value; },
+        onStart: (_, ctx) => {  ctx.start = y.value; ctx.start = y.value; },
         onActive: (e, ctx) => { y.value = Math.min(Math.max(ctx.start + e.translationY, SNAP_Y[2]), SNAP_Y[0]); },
         onEnd: () => {
           const dest = snapPoint(y.value, 0, SNAP_Y);
           y.value = withSpring(dest, { damping: 500, stiffness: 300 }, () => runOnJS(setSnap)(PROG[dest === SNAP_Y[0] ? 'MIN' : dest === SNAP_Y[1] ? 'WEEK' : 'MONTH']));
-          console.log(panelSnap)
         },
       })
     }>
@@ -292,14 +302,14 @@ export default function HandleCalendarPanel({ y, progress }) {
 
 // ───────── Styles ─────────
 const styles = StyleSheet.create({
-  sheet: { position: 'absolute', top: 0, left: 0, right: 0, height: H_FULL, backgroundColor: '#fff' },
-  handleBar: { alignSelf: 'center', width: 44, height: 6, borderRadius: 4, backgroundColor: '#bbb', marginVertical: 10 },
+  sheet: { position: 'absolute', top: 0, left: 0, right: 0, height: H_FULL, backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, elevation: 70 },
+  handleBar: { alignSelf: 'center', width: 44, height: 6, borderRadius: 4, backgroundColor: '#dedede', marginVertical: 10 },
   header: { position: 'absolute', top: 10, left: 0, paddingHorizontal: 20, paddingBottom: 8 },
   title: { fontSize: 36, fontWeight: '600', color: '#222' },
   dayHeader: { position: 'absolute', top: HEADER_TOP_WEEK, left: 0, width: W, height: HEADER_H, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  dayLabel: { width: W / 7 - 2, textAlign: 'center', fontSize: 12, fontWeight: '500', color: '#444' },
-  sun: { color: '#D33' },
-  sat: { color: '#36C' },
+  dayLabel: { width: W / 7 - 2, textAlign: 'center', fontSize: 12, fontWeight: '500', color: '#959595' },
+  sun: { color: '#F08789' },
+  sat: { color: '#90ADED' },
   mask: { width: W },
-  dayBox: { width: W / 7 - H_GAP * 2 - 2, height: CELL_H, marginHorizontal: H_GAP, marginVertical: V_GAP, justifyContent: 'center', alignItems: 'center', borderRadius: 6 },
+  dayBox: { width: W / 7 - H_GAP * 2 - 2, height: CELL_H, marginHorizontal: H_GAP, marginVertical: V_GAP, justifyContent: 'center', alignItems: 'center', borderRadius: 6},
 });
