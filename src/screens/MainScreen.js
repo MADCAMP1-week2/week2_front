@@ -20,12 +20,12 @@ const MainScreen = () => {
 
   useEffect(() => {
     const today = new Date();
-  useHomeUIStore.getState().setDate(today);
-  }, []);
+    useHomeUIStore.getState().setDate(today);
+    }, []);
   useEffect(() => {
     const today = new Date();
-  useHomeUIStore.getState().setToday(today);
-  }, []);
+    useHomeUIStore.getState().setToday(today);
+    }, []);
 
   const progress = useDerivedValue(() =>
     interpolate(

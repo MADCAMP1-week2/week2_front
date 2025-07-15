@@ -3,8 +3,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 /* eslint-disable react/react-in-jsx-scope */
 
-import React, { useMemo, useState, useEffect, useLayoutEffect } from 'react';
-import { Dimensions, StyleSheet, View, Text, TouchableOpacity, unstable_batchedUpdates } from 'react-native';
+import React, { useMemo, useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { Dimensions, StyleSheet, View, Text, TouchableOpacity, unstable_batchedUpdates, InteractionManager } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import PagerView from 'react-native-pager-view';
 import Animated, {
@@ -31,9 +31,9 @@ import DayBox from './DateBox';
 // ───────── Layout Const ─────────
 const { height: H, width: W } = Dimensions.get('window');
 const H_MIN = 32, H_WEEK = 150, H_NAVI = 65, H_FULL = H;
-const CELL_H = 75, H_GAP = 2, V_GAP = 7, ROW_H = CELL_H + V_GAP * 2;
+const CELL_H = 75, H_GAP = 4, V_GAP = 5, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
-const TITLE_H = 46, HEADER_H = 25;
+const TITLE_H = 46, HEADER_H = 20;
 const HEADER_TOP_WEEK = HANDLE_H + HANDLE_MV * 2 + TITLE_H - 46;
 const HEADER_DOWN_MONTH = 40, GRID_GAP = 2;
 const SNAP_Y = [H - H_MIN - H_NAVI, H - H_WEEK - H_NAVI, 0];
@@ -60,13 +60,8 @@ function buildWeekPages(center) {
 // ───────── 공통 페이지 컴포넌트 (FlatList 7열) ─────────
 import { FlatList } from 'react-native';
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-function CalendarGrid({ dates, progress, mode }) {
-  const focusedRow = mode === 'WEEK' ? 0 : 2; // 월→ROW3, 주→ROW0(단일)
-  const gridShift = useDerivedValue(() =>
-    interpolate(progress.value, [0.5, 0], [mode === 'WEEK' ? 0 : -focusedRow * ROW_H, 0], Extrapolate.CLAMP)
-  );
-  const gridAnim = useAnimatedStyle(() => ({ transform: [{ translateY: gridShift.value }] }));
 
+function CalendarGrid({ dates, progress, mode }) {
   const renderItem = ({ item }) => (
     <DayBox
       date={item}
@@ -82,42 +77,63 @@ function CalendarGrid({ dates, progress, mode }) {
       numColumns={7}
       scrollEnabled={false}
       renderItem={renderItem}
-      columnWrapperStyle={{ justifyContent: 'center' }}
-      contentContainerStyle={gridAnim}
+      columnWrapperStyle={{ justifyContent: 'center', alignContent: 'center' }}
       getItemLayout={(_, i) => ({ length: CELL_H, offset: CELL_H * i, index: i })}
     />
   );
-}
+};
 
-// ───────── Pager 래퍼들 ─────────
-function MonthPager({ centerDate, onDelta, progress }) {
-  const pagerRef = React.useRef(null);       // ① 내부 ref
-  const isTurning = React.useRef(false);     // ② 중복 이벤트 방지
+/* 공통 훅 ---------------------------------------------------- */
+function usePager(centerDate, onDelta, buildPages) {
+  const pagerRef = useRef(null);
+  const selected = useRef(1);   // 0·1·2 중 선택된 위치
+  const locked   = useRef(false);
 
-  // ③ centerDate 바뀌면 한 프레임 뒤 중앙 페이지로 리셋
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      isTurning.current = false;
-    });
+  const pages = useMemo(() => buildPages(centerDate), [centerDate]);
+
+  /* ① centerDate가 바뀐 즉시(페인트 전) 중앙으로 리셋 */
+  useLayoutEffect(() => {
+    pagerRef.current?.setPageWithoutAnimation(1);
+    locked.current = false;          // 잠금 해제
   }, [centerDate]);
 
-  const pages = useMemo(() => buildMonthPages(centerDate), [centerDate]);
+  /* ② 선택된 위치만 저장 */
+  const handlePageSelected = e => {
+    selected.current = e.nativeEvent.position;
+  };
+
+  /* ③ idle 상태 ⇒ delta 계산 → centerDate 업데이트만 */
+  const handleScrollStateChanged = e => {
+    if (
+      e.nativeEvent.pageScrollState !== 'idle' ||
+      selected.current === 1 ||
+      locked.current
+    ) {
+      return;
+    }
+    locked.current = true;
+    const delta = selected.current === 0 ? -1 : 1;
+    onDelta(delta);
+    // 리셋은 ①(useLayoutEffect)에서 실행
+  };
+
+  return { pagerRef, pages, handlePageSelected, handleScrollStateChanged };
+}
+
+/* MonthPager ------------------------------------------------- */
+export function MonthPager({ centerDate, onDelta, progress }) {
+  const { pagerRef, pages, handlePageSelected, handleScrollStateChanged } =
+    usePager(centerDate, onDelta, buildMonthPages);
 
   return (
     <PagerView
       ref={pagerRef}
       initialPage={1}
       style={{ width: W, flex: 1 }}
-      onPageSelected={e => {
-        const pos = e.nativeEvent.position;
-        if (pos === 1 || isTurning.current) return;   // 중앙이거나 이미 처리 중이면 무시
-        isTurning.current = true;                     // 잠금 
-        unstable_batchedUpdates(()=>{
-          pagerRef.current?.setPageWithoutAnimation(1); 
-          onDelta(pos === 0 ? -1 : 1);
-        })
-      }}
+      onPageSelected={handlePageSelected}
+      onPageScrollStateChanged={handleScrollStateChanged}
     >
+      {/* key를 0·1·2로 고정해 불필요한 언마운트 방지 */}
       <View key="0"><CalendarGrid dates={pages.prev}    progress={progress} mode="MONTH" /></View>
       <View key="1"><CalendarGrid dates={pages.current} progress={progress} mode="MONTH" /></View>
       <View key="2"><CalendarGrid dates={pages.next}    progress={progress} mode="MONTH" /></View>
@@ -125,30 +141,18 @@ function MonthPager({ centerDate, onDelta, progress }) {
   );
 }
 
-function WeekPager({ centerDate, onDelta, progress }) {
-  const pagerRef  = React.useRef(null);
-  const isTurning = React.useRef(false);
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      pagerRef.current?.setPageWithoutAnimation(1);
-      isTurning.current = false;
-    });
-  }, [centerDate]);
-
-  const pages = useMemo(() => buildWeekPages(centerDate), [centerDate]);
+/* WeekPager -------------------------------------------------- */
+export function WeekPager({ centerDate, onDelta, progress }) {
+  const { pagerRef, pages, handlePageSelected, handleScrollStateChanged } =
+    usePager(centerDate, onDelta, buildWeekPages);
 
   return (
     <PagerView
       ref={pagerRef}
       initialPage={1}
       style={{ width: W, flex: 1 }}
-      onPageSelected={e => {
-        const pos = e.nativeEvent.position;
-        if (pos === 1 || isTurning.current) return;
-        isTurning.current = true;
-        onDelta(pos === 0 ? -1 : 1);
-      }}
+      onPageSelected={handlePageSelected}
+      onPageScrollStateChanged={handleScrollStateChanged}
     >
       <View key="0"><CalendarGrid dates={pages.prev}    progress={progress} mode="WEEK" /></View>
       <View key="1"><CalendarGrid dates={pages.current} progress={progress} mode="WEEK" /></View>
@@ -157,9 +161,15 @@ function WeekPager({ centerDate, onDelta, progress }) {
   );
 }
 
+function getRowIndex(d /* dayjs */) {
+  const first = d.startOf('month');
+  const offset = (first.day() + 7) % 7;          // 첫째 날이 무슨 요일인지(0=일)
+  const n = d.date() + offset - 1;               // 월 머리 공백 포함한 index
+  return Math.floor(n / 7);                      // 0 ~ 5
+}
 
 // ───────── Main Panel ─────────
-export default function HandleCalendarPanel({ y }) {
+export default function HandleCalendarPanel({ y, progress }) {
   const { panelSnap, setSnap } = useHomeUIStore((s) => ({ panelSnap: s.panelSnap, setSnap: s.setSnap }));
   const setVisible = useBottomBarStore((s) => s.setVisible);
   const [centerDate, setCenterDate] = useState(dayjs());
@@ -168,9 +178,6 @@ export default function HandleCalendarPanel({ y }) {
   const viewMode = panelSnap === 0.5 ? 'WEEK' : 'MONTH';
 
   // progress (header/grid 애니 전환)
-  const progress = useDerivedValue(() =>
-    interpolate(y.value, [SNAP_Y[2], SNAP_Y[1], SNAP_Y[0]], [0, 0.5, 1], Extrapolate.CLAMP)
-  );
 
   // panel height 애니메이션 유지
   useEffect(() => {
@@ -178,15 +185,51 @@ export default function HandleCalendarPanel({ y }) {
     setVisible(panelSnap !== 0);
   }, [panelSnap]);
 
+  // 해당 week의 row번째
+  const rowIdx = useMemo(() => getRowIndex(centerDate), [centerDate]);
+
   // header translate
   const headerTranslate = useDerivedValue(() =>
     interpolate(progress.value, [0.5, 0], [0, HEADER_DOWN_MONTH], Extrapolate.CLAMP)
   );
   const headerSt = useAnimatedStyle(() => ({ transform: [{ translateY: headerTranslate.value }] }));
 
+  // title translate
+  const titleTranslate = useDerivedValue(() =>
+    interpolate(progress.value, [0.25, 0], [0, 1], Extrapolate.CLAMP)
+  );
+  const titleSt = useAnimatedStyle(() => ({ opacity:  titleTranslate.value }));
+
+  // handle translate
+  const handleOpacity = useDerivedValue(() =>
+    interpolate(progress.value, [0.25, 0], [1, 0], Extrapolate.CLAMP)
+  );
+  const handleTranslate = useDerivedValue(() =>
+    interpolate(progress.value, [0.25, 0], [1, 0.7], Extrapolate.CLAMP)
+  );
+  const handleSt = useAnimatedStyle(() => ({ opacity:  handleTranslate.value, transform: [{ scaleX: handleTranslate.value }]}));
+
+  // calendar translate
+  const monthShift = useDerivedValue(() =>
+    interpolate(progress.value, [0.45, 0], [-rowIdx*ROW_H, 0], Extrapolate.CLAMP)
+  );
+
+  const weekShift = useDerivedValue(() =>
+    interpolate(progress.value, [0.45, 0], [0, rowIdx*ROW_H], Extrapolate.CLAMP)
+  );
+
+  const monthSt = useAnimatedStyle(() => ({
+    transform: [{ translateY: monthShift.value }],
+  }));
+
+  const weekSt = useAnimatedStyle(() => ({
+    transform: [{ translateY: weekShift.value }],
+  }));
+
   // mask (grid clip)
-  const rows = viewMode === 'MONTH' ? 6 : 1;
-  const maskHeight = useDerivedValue(() => withTiming(rows * ROW_H, { duration: 300 }));
+  const maskHeight = useDerivedValue(() =>
+    interpolate(progress.value, [0.5, 0], [6*ROW_H, 6*ROW_H], Extrapolate.CLAMP)
+  );
   const maskSt = useAnimatedStyle(() => ({
     marginTop: HEADER_H + GRID_GAP + headerTranslate.value,
     height: maskHeight.value,
@@ -205,15 +248,16 @@ export default function HandleCalendarPanel({ y }) {
         onEnd: () => {
           const dest = snapPoint(y.value, 0, SNAP_Y);
           y.value = withSpring(dest, { damping: 500, stiffness: 300 }, () => runOnJS(setSnap)(PROG[dest === SNAP_Y[0] ? 'MIN' : dest === SNAP_Y[1] ? 'WEEK' : 'MONTH']));
+          console.log(panelSnap)
         },
       })
     }>
       <Animated.View style={[styles.sheet, useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }))]}>
         {/* Handle */}
-        <View style={styles.handleBar} />
+        <Animated.View style={[styles.handleBar, handleSt]} />
 
         {/* Header Title */}
-        <Animated.View style={[styles.header, headerSt]}>
+        <Animated.View style={[styles.header, titleSt]}>
           <Text style={styles.title}>{centerDate.month() + 1}</Text>
         </Animated.View>
 
@@ -226,11 +270,20 @@ export default function HandleCalendarPanel({ y }) {
 
         {/* MASK + Pager */}
         <Animated.View style={[styles.mask, maskSt]}>
-          {viewMode === 'MONTH' ? (
-            <MonthPager centerDate={centerDate} onDelta={onMonthDelta} progress={progress} />
-          ) : (
-            <WeekPager centerDate={centerDate} onDelta={onWeekDelta} progress={progress} />
-          )}
+          <Animated.View style={[StyleSheet.absoluteFill, monthSt]}>
+            <MonthPager
+              centerDate={centerDate}
+              onDelta={onMonthDelta}
+              progress={progress}
+            />
+          </Animated.View>
+          <Animated.View style={[StyleSheet.absoluteFill, weekSt]}>
+            <WeekPager
+              centerDate={centerDate}
+              onDelta={onWeekDelta}
+              progress={progress}
+            />
+          </Animated.View>
         </Animated.View>
       </Animated.View>
     </PanGestureHandler>
