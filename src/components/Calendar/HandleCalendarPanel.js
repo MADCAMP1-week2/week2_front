@@ -42,13 +42,29 @@ export default function HandleCalendarPanel({ y }) {
   const { panelSnap, setSnap } = useHomeUIStore(s => ({ panelSnap: s.panelSnap, setSnap: s.setSnap }));
   const setVisible = useBottomBarStore(s => s.setVisible);
 
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+  const [isNotGood, setIsNotGood] = useState(false);
+  const [focusedRow, setFocusedRow] = useState(2);
+
   const isFlipping = useRef(false);
   function flipPage(delta) {
     requestAnimationFrame(() => {
       setSelectedDate(prev => dayjs(prev).add(delta, 'month'));
+      setIsNotGood(true);
+      const nextDate = dayjs(globalDate).add(delta, 'month').toDate();
+      setDate(nextDate);
     });
   }
+  const globalDate = useHomeUIStore(state => state.selectedDate);
+  const setDate = useHomeUIStore(state => state.setDate);
+  const [selectedDate, setSelectedDate] = useState(dayjs(globalDate));
+
+  useEffect(() => {
+    if (!isNotGood){
+      setSelectedDate(dayjs(globalDate));
+      setIsNotGood(false);
+    }
+  }, [globalDate]);
+
   const viewMode = 'MONTH';                         // WEEK 모드는 당장 OFF
 
   /* 3-Page Slider: prev / current / next */
@@ -155,7 +171,7 @@ export default function HandleCalendarPanel({ y }) {
       <Animated.View style={[styles.sheet,sheetSt]}>
         <Animated.View style={[styles.handleBar,handleBarSt]} />
         <Animated.View style={styles.closeBtnWrap}><TouchableOpacity onPress={handleExit}><Text style={styles.closeText}>✕</Text></TouchableOpacity></Animated.View>
-        <Animated.View style={[styles.header,titleSt]}><Text style={styles.title}>{monthTitle}</Text></Animated.View>
+        <Animated.View style={[styles.header,titleSt]}><Text style={styles.title}>{selectedDate.month()+1}</Text></Animated.View>
 
         <Animated.View style={[styles.dayHeader,headerSt]}>
           {['일','월','화','수','목','금','토'].map((d,i)=>(<Text key={i} style={[styles.dayLabel,i===0&&styles.sun,i===6&&styles.sat]}>{d}</Text>))}
