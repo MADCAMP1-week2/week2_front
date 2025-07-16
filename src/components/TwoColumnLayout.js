@@ -12,11 +12,13 @@ import Animated, {
 import ScheduleView from './Schedule/ScheduleView';
 import TodoList from './Todo/TodoList';
 import {useHomeUIStore} from '@store/homeUIStore';
+import dayjs from 'dayjs'
 
 const {height: H, width: W} = Dimensions.get('window');
 
 export default function TwoColumnLayout({progress}) {
   const snap = useHomeUIStore(state => state.panelSnap); // 0~1
+  const date = useHomeUIStore(state => state.selectedDate);
 
   /* ❷ SharedValue 하나만 준비 */
   const snapSV = useSharedValue(snap);
@@ -33,10 +35,10 @@ export default function TwoColumnLayout({progress}) {
   return (
     <Animated.View style={[styles.container, containerSt]}>
       <View style={styles.schedule}>
-        <ScheduleView />
+        <ScheduleView date={date} />
       </View>
       <View style={styles.todo}>
-        <TodoList date={'2025-07-16'} projectId={null} />
+        <TodoList date={date} projectId={null} />
       </View>
     </Animated.View>
   );

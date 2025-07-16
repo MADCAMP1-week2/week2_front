@@ -65,7 +65,7 @@ const MainScreen = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#ffff' }}>
       {/* 배경 레이어 */}
       <LinearGradient
-        colors={['#ffffff', '#f7f7f7', '#f7f7f7', '#f7f7f7' ]}
+        colors={['#ffffff', '#f7f7f7', '#f7f7f7', '#f7f7f7','#f7f7f7' ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}

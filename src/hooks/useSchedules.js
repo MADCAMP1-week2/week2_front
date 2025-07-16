@@ -1,6 +1,6 @@
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import {fetchSchedules} from '@api/schedules';
+import { fetchSchedules } from '@api/schedules';
 
 export const useSchedules = (date, projectId) => {
   const start = dayjs(date).startOf('day').toISOString(); // 00:00:00
