@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import DatePicker from 'react-native-date-picker';
-import {useAddTodo} from '../../hooks/useTodos';
+import { addTodo } from '../../api/todos';
 
 export default function TodoForm({onSubmit}) {
   const [title, setTitle] = useState('');
@@ -45,7 +45,7 @@ export default function TodoForm({onSubmit}) {
         endDate,
       },
     };
-    useAddTodo(newTodo);
+    addTodo(newTodo);
   };
 
   return (
