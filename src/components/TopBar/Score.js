@@ -17,9 +17,6 @@ const Score = ({ userName = '윤아', score = 589, onRefresh }) => {
         <Text style={{ fontSize: 48,  color: '#C90000', fontFamily: "SCDream-ExtraBold" }}>
           {score}
         </Text>
-        <TouchableOpacity onPress={onRefresh} style={{ marginLeft: 4 }}>
-          <Text>{"f5"}</Text>
-        </TouchableOpacity>
       </View>
 
       {/* 경고 텍스트 */}
