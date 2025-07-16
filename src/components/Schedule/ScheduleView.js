@@ -36,10 +36,19 @@ const ScheduleView = ({ date }) => {
     <View style={styles.hour}>
       <Text style={styles.hourLabel}>{hour}</Text>
       {schedules
-        .filter(s => dayjs(s.start).hour() === hour)
+        .filter(s => dayjs(s.startDateTime).hour() === hour)
         .map(s => (
-          <View key={s._id} style={styles.eventBox}>
-            <Text numberOfLines={1} style={styles.eventText}>
+          <View
+            key={s._id}
+            style={[
+              styles.eventBox,
+              {
+                height: dayjs(s.endDateTime).diff(dayjs(s.startDateTime), 'hour', true) * HOUR_H,
+                top: (dayjs(s.startDateTime).minute() / 60) *HOUR_H
+              }
+            ]}
+          >
+            <Text style={styles.eventText}>
               {s.title}
             </Text>
           </View>
@@ -78,24 +87,30 @@ const styles = StyleSheet.create({
   hour: {
     height: HOUR_H,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#b1b1b1',
-    opacity: 0.5,
+    borderColor: '#d5d5d5ff',
+    opacity: 1,
     justifyContent: 'flex-start',
     paddingLeft: 48,
   },
   hourLabel: { position: 'absolute', left: 8, top: 1, color: '#B1B1B1', opacity: 1, fontSize: 10, fontFamily: 'SCDream-Light' },
   eventBox: {
     position: 'absolute',
-    left: 48,
-    right: 8,
-    top: 4,
-    height: 52,
+    left: 24,
+    right: 0,
     borderRadius: 8,
-    backgroundColor: '#E7D9FF',
+    backgroundColor: '#bea0ffff',
     justifyContent: 'center',
     paddingHorizontal: 8,
+    alignItems: 'center'
   },
-  eventText: { fontSize: 12, color: '#4a4a4a' },
+  eventText: {
+    fontSize: 13,
+    color: '#ffffff',            // ✔ 흰색 텍스트 유지
+    lineHeight: 16,
+    textAlign: 'center',         // ✔ 가운데 정렬
+    fontFamily: 'CSDream-Regular',
+    opacity: 1,
+  },
   nowLine: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: '#ED686A' },
   fade: { position: 'absolute', left: 0, right: 0, height: 32,  pointerEvernts: 'none' },
 });
