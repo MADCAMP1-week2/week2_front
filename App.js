@@ -39,8 +39,8 @@ function TabNavigator() {
       screenOptions={{
         headerShown: false,
       }}>
-      <Tab.Screen name="Home" component={MainScreen} />
       <Tab.Screen name="Project" component={ProjectScreen} />
+      <Tab.Screen name="Home" component={MainScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
