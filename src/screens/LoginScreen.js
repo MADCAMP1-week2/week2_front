@@ -9,6 +9,7 @@ import DeviceInfo from 'react-native-device-info';
 import {AuthContext} from '@contexts/AuthContext';
 import {loginRequest} from '@api/auth';
 import greetingStyles from '../styles/greetingStyles';
+import axios from 'axios';
 
 const LoginScreen = () => {
   const {login} = useContext(AuthContext);
@@ -20,7 +21,12 @@ const LoginScreen = () => {
   /* ① 마운트 여부 확인용 ref                                           */
   /* ------------------------------------------------------------------ */
   const isMounted = useRef(true);
-  useEffect(() => () => { isMounted.current = false; }, []);
+  useEffect(() => {
+    isMounted.current = true;          // 화면이 나타날 때 true
+    return () => {
+      isMounted.current = false;       // 언마운트될 때 false
+    };
+  }, []);
 
   /* ------------------------------------------------------------------ */
   /* ② axios 취소 토큰(선택)                                            */
@@ -37,7 +43,17 @@ const LoginScreen = () => {
 
       /* AbortController 생성 & 저장 */
       abortRef.current = new AbortController();
-      const res = await loginRequest(payload, abortRef.current.signal);
+      console.log("Dd")
+      // const res = await loginRequest(payload, abortRef.current.signal);
+      const res = await axios.post(
+        `http://192.249.26.139:3000/api/auth/login`,
+        payload,
+        {
+          // ※ AbortController·인터셉터 모두 제거
+          timeout: 10000,                          // 10 초 후 타임아웃 → catch
+          validateStatus: () => true,              // 어떤 상태코드든 catch 막지 않음
+        }
+      );
 
       if (!isMounted.current) return;             // 이미 화면이 사라졌다면 무시
 
@@ -45,6 +61,13 @@ const LoginScreen = () => {
         ToastAndroid.show('아이디 또는 비밀번호가 올바르지 않습니다.', ToastAndroid.SHORT);
         return;
       }
+
+      if (!res || !res.data) {
+        console.log('❌ 응답이 비어있음:', res);
+        ToastAndroid.show('서버 응답이 없습니다.', ToastAndroid.SHORT);
+        return;
+      }
+
 
       const {accessToken, refreshToken, user} = res.data;
       await login({accessToken, refreshToken, user}); // ↙︎ Main으로 네비게이션 (AuthContext 내부)

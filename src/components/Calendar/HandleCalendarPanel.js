@@ -30,7 +30,7 @@ import DayBox from './DateBox';
 
 // ───────── Layout Const ─────────
 const { height: H, width: W } = Dimensions.get('window');
-const H_MIN = 32, H_WEEK = 140, H_NAVI = 65, H_FULL = H;
+const H_MIN = 24, H_WEEK = 140, H_NAVI = 65, H_FULL = H;
 const CELL_H = 75, H_GAP = 2, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
 const TITLE_H = 46, HEADER_H = 20;
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   header: { position: 'absolute', top: 10, left: 0, paddingHorizontal: 20, paddingBottom: 8 },
   title: { fontSize: 36, fontWeight: '600', color: '#222' },
   dayHeader: { position: 'absolute', top: HEADER_TOP_WEEK, left: 0, width: W, height: HEADER_H, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  dayLabel: { width: W / 7 - 2, textAlign: 'center', fontSize: 12, fontWeight: '500', color: '#959595' },
+  dayLabel: { width: W / 7 - 2, textAlign: 'center', fontSize: 12, fontWeight: '500', fontFamily: 'SCDream-Medium', color: '#959595' },
   sun: { color: '#F08789' },
   sat: { color: '#90ADED' },
   mask: { width: W },

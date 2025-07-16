@@ -39,10 +39,10 @@ export default function AnimatedBottomBar({
     <Animated.View style={[styles.wrapper, animatedStyle]}>
       <Shadow
         style={{ width: SCREEN_WIDTH }} // Shadow 는 픽셀 폭이 필요
-        distance={20}
+        distance={15}
         offset={[0, -4]}
-        startColor="rgba(0,0,0,0.02)"
-        radius={25}
+        startColor="rgba(0,0,0,0.03)"
+        radius={20}
         corners={{ topStart: true, topEnd: true }}
       >
         <View style={[styles.container, { width: SCREEN_WIDTH }]}>
@@ -86,6 +86,6 @@ const styles = StyleSheet.create({
     borderColor: '#f4f4f4',
   },
   btn: { flex: 1, alignItems: 'center' },
-  label: { color: '#888', fontSize: 14 },
-  active: { color: '#000', fontWeight: 'bold' },
+  label: { color: '#888', fontSize: 14, fontFamily:'SCDream-Light' },
+  active: { color: '#000', fontWeight: 'bold',fontSize: 16, fontFamily:'SCDream-Regular' },
 });

@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import { useSchedules } from '@hooks/useSchedules';  // 기존 훅 사용
 
 const { height: SCREEN_H } = Dimensions.get('window');
-const HOUR_H = 60;     // 1시간 높이
+const HOUR_H = 50;     // 1시간 높이
 
 const ScheduleView = ({ date }) => {
   const { data, isLoading, isError } = useSchedules(date);
@@ -78,11 +78,12 @@ const styles = StyleSheet.create({
   hour: {
     height: HOUR_H,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: '#e1e1e1',
+    borderColor: '#b1b1b1',
+    opacity: 0.5,
     justifyContent: 'flex-start',
     paddingLeft: 48,
   },
-  hourLabel: { position: 'absolute', left: 8, top: 4, color: '#999' },
+  hourLabel: { position: 'absolute', left: 8, top: 1, color: '#B1B1B1', opacity: 1, fontSize: 10, fontFamily: 'SCDream-Light' },
   eventBox: {
     position: 'absolute',
     left: 48,
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   eventText: { fontSize: 12, color: '#4a4a4a' },
-  nowLine: { position: 'absolute', left: 0, right: 0, height: 1.5, backgroundColor: 'red' },
+  nowLine: { position: 'absolute', left: 0, right: 0, height: 1, backgroundColor: '#ED686A' },
   fade: { position: 'absolute', left: 0, right: 0, height: 32,  pointerEvernts: 'none' },
 });
 

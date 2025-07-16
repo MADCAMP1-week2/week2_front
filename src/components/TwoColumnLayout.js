@@ -1,5 +1,5 @@
 import React, {useRef, useEffect} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import Animated, {
   useSharedValue,
   useDerivedValue,
@@ -13,6 +13,8 @@ import ScheduleView from './Schedule/ScheduleView';
 import TodoList from './Todo/TodoList';
 import {useHomeUIStore} from '@store/homeUIStore';
 
+const {height: H, width: W} = Dimensions.get('window');
+
 export default function TwoColumnLayout({progress}) {
   const snap = useHomeUIStore(state => state.panelSnap); // 0~1
 
@@ -25,7 +27,7 @@ export default function TwoColumnLayout({progress}) {
   }, [snap]);
 
   const containerSt = useAnimatedStyle(() => ({
-    height: interpolate(snapSV.value, [0, 0.5, 1], [360, 360, 475]),
+    height: interpolate(snapSV.value, [0, 0.5, 1], [H - 390, H - 390, H - 270]),
   }));
 
   return (
@@ -34,7 +36,7 @@ export default function TwoColumnLayout({progress}) {
         <ScheduleView />
       </View>
       <View style={styles.todo}>
-        <TodoList date={'2025-07-16'} projectId={null}/>
+        <TodoList date={'2025-07-16'} projectId={null} />
       </View>
     </Animated.View>
   );
@@ -47,10 +49,10 @@ const styles = StyleSheet.create({
   },
   schedule: {
     flex: 3, // 60%
-    padding: 7,
+    padding: 4,
   },
   todo: {
     flex: 7, // 40%
-    padding: 7,
+    padding: 10,
   },
 });

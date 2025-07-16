@@ -14,6 +14,15 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-week2_front-week2_frontTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-week2_front-week2_frontTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		6C0CEEF6AD9D4AB881257852 /* SCDream-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A4BBCC073D9846A3961CF170 /* SCDream-Black.ttf */; };
+		2CDBE1BD3A1A4A3FA9FBB08A /* SCDream-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0DB139F8784436D8B4AABF2 /* SCDream-Bold.ttf */; };
+		C219A5FCA8DB43E8B1C3BD86 /* SCDream-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6A61FA80C6CD42F2ACD5B0B1 /* SCDream-ExtraBold.ttf */; };
+		86163C14BAAA4C968304CB85 /* SCDream-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8EBB3431431F4B76A6706A58 /* SCDream-ExtraLight.ttf */; };
+		117CD9BF3D0348A09BA3F3C1 /* SCDream-Heavy.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17F2EA78303B412AA18B30CA /* SCDream-Heavy.ttf */; };
+		A4EA128B30F14F66B3AD5E83 /* SCDream-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 90FDA13A157B4C2DAD72C9A5 /* SCDream-Light.ttf */; };
+		F8E6897E45214BEBB56F3F97 /* SCDream-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F9C7FF45CEEB44E9B570676E /* SCDream-Medium.ttf */; };
+		EC7E3D6530DB4B76A5EC1AC6 /* SCDream-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AAE5FFDD8BAB47EF900E1038 /* SCDream-Regular.ttf */; };
+		85CDA667149A4EDEB48A765F /* SCDream-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7880210E061C48BF86B67C4B /* SCDream-Thin.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +53,15 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = week2_front/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-week2_front-week2_frontTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-week2_front-week2_frontTests.release.xcconfig"; path = "Target Support Files/Pods-week2_front-week2_frontTests/Pods-week2_front-week2_frontTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		A4BBCC073D9846A3961CF170 /* SCDream-Black.ttf */ = {isa = PBXFileReference; name = "SCDream-Black.ttf"; path = "../src/assets/fonts/SCDream-Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		A0DB139F8784436D8B4AABF2 /* SCDream-Bold.ttf */ = {isa = PBXFileReference; name = "SCDream-Bold.ttf"; path = "../src/assets/fonts/SCDream-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		6A61FA80C6CD42F2ACD5B0B1 /* SCDream-ExtraBold.ttf */ = {isa = PBXFileReference; name = "SCDream-ExtraBold.ttf"; path = "../src/assets/fonts/SCDream-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8EBB3431431F4B76A6706A58 /* SCDream-ExtraLight.ttf */ = {isa = PBXFileReference; name = "SCDream-ExtraLight.ttf"; path = "../src/assets/fonts/SCDream-ExtraLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		17F2EA78303B412AA18B30CA /* SCDream-Heavy.ttf */ = {isa = PBXFileReference; name = "SCDream-Heavy.ttf"; path = "../src/assets/fonts/SCDream-Heavy.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		90FDA13A157B4C2DAD72C9A5 /* SCDream-Light.ttf */ = {isa = PBXFileReference; name = "SCDream-Light.ttf"; path = "../src/assets/fonts/SCDream-Light.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		F9C7FF45CEEB44E9B570676E /* SCDream-Medium.ttf */ = {isa = PBXFileReference; name = "SCDream-Medium.ttf"; path = "../src/assets/fonts/SCDream-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		AAE5FFDD8BAB47EF900E1038 /* SCDream-Regular.ttf */ = {isa = PBXFileReference; name = "SCDream-Regular.ttf"; path = "../src/assets/fonts/SCDream-Regular.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		7880210E061C48BF86B67C4B /* SCDream-Thin.ttf */ = {isa = PBXFileReference; name = "SCDream-Thin.ttf"; path = "../src/assets/fonts/SCDream-Thin.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +140,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				5B3C59FD527146F1B6A723A1 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -147,6 +166,23 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		5B3C59FD527146F1B6A723A1 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				A4BBCC073D9846A3961CF170 /* SCDream-Black.ttf */,
+				A0DB139F8784436D8B4AABF2 /* SCDream-Bold.ttf */,
+				6A61FA80C6CD42F2ACD5B0B1 /* SCDream-ExtraBold.ttf */,
+				8EBB3431431F4B76A6706A58 /* SCDream-ExtraLight.ttf */,
+				17F2EA78303B412AA18B30CA /* SCDream-Heavy.ttf */,
+				90FDA13A157B4C2DAD72C9A5 /* SCDream-Light.ttf */,
+				F9C7FF45CEEB44E9B570676E /* SCDream-Medium.ttf */,
+				AAE5FFDD8BAB47EF900E1038 /* SCDream-Regular.ttf */,
+				7880210E061C48BF86B67C4B /* SCDream-Thin.ttf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -244,6 +280,15 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				6C0CEEF6AD9D4AB881257852 /* SCDream-Black.ttf in Resources */,
+				2CDBE1BD3A1A4A3FA9FBB08A /* SCDream-Bold.ttf in Resources */,
+				C219A5FCA8DB43E8B1C3BD86 /* SCDream-ExtraBold.ttf in Resources */,
+				86163C14BAAA4C968304CB85 /* SCDream-ExtraLight.ttf in Resources */,
+				117CD9BF3D0348A09BA3F3C1 /* SCDream-Heavy.ttf in Resources */,
+				A4EA128B30F14F66B3AD5E83 /* SCDream-Light.ttf in Resources */,
+				F8E6897E45214BEBB56F3F97 /* SCDream-Medium.ttf in Resources */,
+				EC7E3D6530DB4B76A5EC1AC6 /* SCDream-Regular.ttf in Resources */,
+				85CDA667149A4EDEB48A765F /* SCDream-Thin.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

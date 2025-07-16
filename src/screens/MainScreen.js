@@ -11,8 +11,11 @@ import { useHomeUIStore } from '@store/homeUIStore';
 import TwoColumnLayout from '@components/TwoColumnLayout';
 import { State } from 'react-native-gesture-handler';
 
+import Header from '@components/TopBar/Header';
+import Score from '@components/TopBar/Score';
+
 const { height: H, width: W } = Dimensions.get('window');
-const H_MIN = 32, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
+const H_MIN = 24, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
 const CELL_H = 75, H_GAP = 4, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
 const TITLE_H = 46, HEADER_H = 20;
@@ -59,16 +62,24 @@ const MainScreen = () => {
     
     
     {/* 컨텐츠 레이어 */}
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#bbb' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#ffff' }}>
       {/* 배경 레이어 */}
       <LinearGradient
-        colors={['#ffffff', '#f7f7f7', '#f7f7f7', '#f7f7f7', '#f7f7f7']}
+        colors={['#ffffff', '#f7f7f7', '#f7f7f7', '#f7f7f7' ]}
         style={StyleSheet.absoluteFill}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
       />
-      <TopBar />
-      <Text>{useHomeUIStore(state => state.selectedDate).toDateString()}</Text>
+      <Header
+        onPressProfile={() => console.log('프로필 이동')}
+        onPressSettings={() => console.log('설정 이동')}
+      />
+      <Score
+        userName="윤아"
+        score={589}
+        stars={35}
+        onRefresh={() => console.log('새로고침')}
+      />
       <TwoColumnLayout progress={progress} />
       
       {/* <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} /> */}

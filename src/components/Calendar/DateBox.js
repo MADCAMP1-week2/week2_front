@@ -17,7 +17,7 @@ export default function DayBox({ date, inMonth, style }) {
   const borderWidth = useSharedValue(0);
 
   useDerivedValue(() => {
-    scale.value = withTiming(selectedDateKey.value === key ? 1.1 : 1, { duration: 150 });
+    scale.value = withTiming(selectedDateKey.value === key ? 1.15 : 1, { duration: 150 });
     borderWidth.value = withTiming(selectedDateKey.value === key ? 1 : 0, { duration: 150 });
   });  
 
@@ -33,6 +33,8 @@ export default function DayBox({ date, inMonth, style }) {
   else if (dayOfWeek === 6) color = inMonth ? '#5988EE' : '#90ADED';
   else color = inMonth ? '#262626' : '#959595';
 
+  let backgroundColor = dayjs(date).isSame(dayjs(), 'day') ? '#fafafaff' : '#ffffff';
+
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -42,7 +44,7 @@ export default function DayBox({ date, inMonth, style }) {
       }}
     >
       <View style={style}>
-        <Animated.View style={[styles.inner, animatedStyle]}>
+        <Animated.View style={[styles.inner, animatedStyle ,{backgroundColor}]}>
           <Text style={[styles.dayText, { color }]}>{date.date()}</Text>
         </Animated.View>
       </View>
@@ -57,10 +59,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    borderColor: '#f3f3f3ff'
   },
   dayText: {
-    fontSize: 11,
-    fontWeight: '500',
+    position: 'absolute',
+    top: 10,
+    fontSize: 12,
+    fontFamily: 'SCDream-Medium'
   },
 });
