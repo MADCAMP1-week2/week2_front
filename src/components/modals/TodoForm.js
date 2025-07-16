@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Button,
+  TouchableOpacity,
+} from 'react-native';
 import DatePicker from 'react-native-date-picker';
+import {useAddTodo} from '../../hooks/useTodos';
 
-export default function TodoForm({ onSubmit }) {
+export default function TodoForm({onSubmit}) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(new Date());
   const [deadline, setDeadline] = useState(new Date());
@@ -17,14 +25,14 @@ export default function TodoForm({ onSubmit }) {
   const [deadlinePickerOpen, setDeadlinePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
-  const toggleWeekday = (day) => {
-    setWeekDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+  const toggleWeekday = day => {
+    setWeekDays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day],
     );
   };
 
   const handleSubmit = () => {
-    onSubmit({
+    const newTodo = {
       title,
       date,
       deadline,
@@ -36,7 +44,8 @@ export default function TodoForm({ onSubmit }) {
         weekDays,
         endDate,
       },
-    });
+    };
+    useAddTodo(newTodo);
   };
 
   return (
@@ -45,7 +54,9 @@ export default function TodoForm({ onSubmit }) {
       <TextInput value={title} onChangeText={setTitle} style={styles.input} />
 
       <Text style={styles.label}>Date</Text>
-      <TouchableOpacity onPress={() => setDatePickerOpen(true)} style={styles.input}>
+      <TouchableOpacity
+        onPress={() => setDatePickerOpen(true)}
+        style={styles.input}>
         <Text>{date.toLocaleDateString()}</Text>
       </TouchableOpacity>
       <DatePicker
@@ -53,7 +64,7 @@ export default function TodoForm({ onSubmit }) {
         open={datePickerOpen}
         date={date}
         mode="date"
-        onConfirm={(d) => {
+        onConfirm={d => {
           setDatePickerOpen(false);
           setDate(d);
         }}
@@ -61,7 +72,9 @@ export default function TodoForm({ onSubmit }) {
       />
 
       <Text style={styles.label}>Deadline</Text>
-      <TouchableOpacity onPress={() => setDeadlinePickerOpen(true)} style={styles.input}>
+      <TouchableOpacity
+        onPress={() => setDeadlinePickerOpen(true)}
+        style={styles.input}>
         <Text>{deadline.toLocaleDateString()}</Text>
       </TouchableOpacity>
       <DatePicker
@@ -69,7 +82,7 @@ export default function TodoForm({ onSubmit }) {
         open={deadlinePickerOpen}
         date={deadline}
         mode="date"
-        onConfirm={(d) => {
+        onConfirm={d => {
           setDeadlinePickerOpen(false);
           setDeadline(d);
         }}
@@ -77,24 +90,27 @@ export default function TodoForm({ onSubmit }) {
       />
 
       <Text style={styles.label}>카테고리</Text>
-      <TextInput value={category} onChangeText={setCategory} style={styles.input} />
+      <TextInput
+        value={category}
+        onChangeText={setCategory}
+        style={styles.input}
+      />
 
       <Text style={styles.label}>난이도 (1~5)</Text>
       <TextInput
         value={String(difficulty)}
-        onChangeText={(v) => setDifficulty(Number(v))}
+        onChangeText={v => setDifficulty(Number(v))}
         keyboardType="number-pad"
         style={styles.input}
       />
 
       <Text style={styles.label}>반복</Text>
       <View style={styles.row}>
-        {['none', 'daily', 'weekly', 'monthly'].map((type) => (
+        {['none', 'daily', 'weekly', 'monthly'].map(type => (
           <TouchableOpacity
             key={type}
             onPress={() => setRepeatType(type)}
-            style={[styles.repeatBtn, repeatType === type && styles.selected]}
-          >
+            style={[styles.repeatBtn, repeatType === type && styles.selected]}>
             <Text>{type}</Text>
           </TouchableOpacity>
         ))}
@@ -105,7 +121,7 @@ export default function TodoForm({ onSubmit }) {
           <Text style={styles.label}>Interval (며칠마다):</Text>
           <TextInput
             value={String(interval)}
-            onChangeText={(v) => setInterval(Number(v))}
+            onChangeText={v => setInterval(Number(v))}
             keyboardType="number-pad"
             style={styles.input}
           />
@@ -116,12 +132,14 @@ export default function TodoForm({ onSubmit }) {
         <>
           <Text style={styles.label}>요일 선택 (0:일 ~ 6:토)</Text>
           <View style={styles.row}>
-            {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+            {[0, 1, 2, 3, 4, 5, 6].map(d => (
               <TouchableOpacity
                 key={d}
                 onPress={() => toggleWeekday(d)}
-                style={[styles.dayBtn, weekDays.includes(d) && styles.selected]}
-              >
+                style={[
+                  styles.dayBtn,
+                  weekDays.includes(d) && styles.selected,
+                ]}>
                 <Text>{d}</Text>
               </TouchableOpacity>
             ))}
@@ -129,7 +147,7 @@ export default function TodoForm({ onSubmit }) {
           <Text style={styles.label}>Interval (몇 주마다)</Text>
           <TextInput
             value={String(interval)}
-            onChangeText={(v) => setInterval(Number(v))}
+            onChangeText={v => setInterval(Number(v))}
             keyboardType="number-pad"
             style={styles.input}
           />
@@ -137,7 +155,9 @@ export default function TodoForm({ onSubmit }) {
       )}
 
       <Text style={styles.label}>반복 종료일</Text>
-      <TouchableOpacity onPress={() => setEndDatePickerOpen(true)} style={styles.input}>
+      <TouchableOpacity
+        onPress={() => setEndDatePickerOpen(true)}
+        style={styles.input}>
         <Text>{endDate ? endDate.toLocaleDateString() : '무한 반복'}</Text>
       </TouchableOpacity>
       <DatePicker
@@ -145,7 +165,7 @@ export default function TodoForm({ onSubmit }) {
         open={endDatePickerOpen}
         date={endDate || new Date()}
         mode="date"
-        onConfirm={(d) => {
+        onConfirm={d => {
           setEndDatePickerOpen(false);
           setEndDate(d);
         }}
@@ -158,8 +178,8 @@ export default function TodoForm({ onSubmit }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  label: { fontWeight: 'bold', marginTop: 12 },
+  container: {padding: 16},
+  label: {fontWeight: 'bold', marginTop: 12},
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
@@ -179,7 +199,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginRight: 8,
   },
-  selected: { backgroundColor: '#ddd' },
+  selected: {backgroundColor: '#ddd'},
   dayBtn: {
     width: 32,
     height: 32,
