@@ -60,6 +60,7 @@ api.interceptors.response.use(
     } catch (refreshErr) {
       processQueue(refreshErr, null);
       await authStorage.clearToken(); // ✅ logout fallback
+      console.log("logouted");
       return Promise.reject(refreshErr);
     } finally {
       refreshing = false;

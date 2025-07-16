@@ -3,13 +3,9 @@ import { SafeAreaView, StyleSheet, Dimensions, View, Text } from 'react-native';
 import Animated, { useSharedValue, useDerivedValue, interpolate, Extrapolate, useAnimatedStyle } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 
-import TopBar from '@components/TopBar/TopBar';
-import ScheduleView from '@components/Schedule/ScheduleView';
-import TodoList from '@components/Todo/TodoList';
 import HandleCalendarPanel from '@components/Calendar/HandleCalendarPanel';
 import { useHomeUIStore } from '@store/homeUIStore';
 import TwoColumnLayout from '@components/TwoColumnLayout';
-import { State } from 'react-native-gesture-handler';
 
 import Header from '@components/TopBar/Header';
 import Score from '@components/TopBar/Score';
