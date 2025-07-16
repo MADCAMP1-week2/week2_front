@@ -7,13 +7,8 @@ export const useSchedules = (date, projectId) => {
   const end = dayjs(date).endOf('day').toISOString(); // 23:59:59.999
   return useQuery({
     queryKey: ['schedules', start, end, projectId],
-    queryFn: () => fetchSchedules({start, end, projectId}),
+    queryFn: () => fetchSchedules(start, end, projectId),
     enabled: !!date, // date 없을 땐 fetch 안 함
-    retry: (count, err) => {
-      const status = err?.response?.status;
-      if (status >= 400 && status < 500) return false;
-      return count < 2; // 최대 2회 재시도
-    },
     staleTime: 1000 * 60 * 5, // 5분 동안 fresh
   });
 };
@@ -23,13 +18,8 @@ export const useWeekSchedules = (weekDate, projectId) => {
   const end = dayjs(weekDate).endOf('week').endOf('day').toISOString(); // 23:59:59.999
   return useQuery({
     queryKey: ['schedules', start, end, projectId],
-    queryFn: () => fetchSchedules({start, end, projectId}),
+    queryFn: () => fetchSchedules(start, end, projectId),
     enabled: !!date, // date 없을 땐 fetch 안 함
-    retry: (count, err) => {
-      const status = err?.response?.status;
-      if (status >= 400 && status < 500) return false;
-      return count < 2; // 최대 2회 재시도
-    },
     staleTime: 1000 * 60 * 5, // 5분 동안 fresh
   });
 };
@@ -42,13 +32,9 @@ export const useMonthSchedules = (monthDate, projectId) => {
   const end = dayjs(monthDate).endOf('month').endOf('day').format('YYYY-MM-DD');
   return useQuery({
     queryKey: ['schedules', start, end, projectId],
-    queryFn: () => fetchSchedules({start, end, projectId}),
+    queryFn: () => fetchSchedules(start, end, projectId),
     enabled: !!date, // date 없을 땐 fetch 안 함
-    retry: (count, err) => {
-      const status = err?.response?.status;
-      if (status >= 400 && status < 500) return false;
-      return count < 2; // 최대 2회 재시도
-    },
     staleTime: 1000 * 60 * 5, // 5분 동안 fresh
   });
 };
+
