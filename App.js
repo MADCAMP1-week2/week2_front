@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import 'react-native-reanimated';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import React, {useContext} from 'react';
 import {
@@ -14,7 +14,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -27,6 +27,7 @@ import SignupScreen from '@screens/SignupScreen';
 import HomeScreen from '@screens/HomeScreen';
 import SettingsScreen from '@screens/SettingsScreen';
 import MainScreen from '@screens/MainScreen';
+import ProjectScreen from './src/screens/ProjectScreen';
 import AnimatedBottomBar from './src/components/Navigation/BottomBar';
 
 // 탭 네비게이터
@@ -34,12 +35,12 @@ const Tab = createBottomTabNavigator();
 function TabNavigator() {
   return (
     <Tab.Navigator
-      tabBar={(props) => <AnimatedBottomBar {...props} />}
+      tabBar={props => <AnimatedBottomBar {...props} />}
       screenOptions={{
         headerShown: false,
-      }}
-    >
+      }}>
       <Tab.Screen name="Home" component={MainScreen} />
+      <Tab.Screen name="Project" component={ProjectScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
@@ -81,7 +82,7 @@ function AppContent() {
 
 function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{flex: 1}}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <AppContent />
