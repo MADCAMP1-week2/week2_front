@@ -4,11 +4,9 @@ import dayjs from 'dayjs';
 // 특정 기간 일정 가져오는 GET
 export const fetchSchedules = async (start, end, projectId) => {
   // start와 end를 YYYY-MM-DD 형식으로 변환
-  const formattedStart = dayjs(start).format('YYYY-MM-DD');
-  const formattedEnd = dayjs(end).format('YYYY-MM-DD');
   const params = {
-    start: formattedStart,
-    end: formattedEnd,
+    start: start,
+    end: end,
     ...(projectId != null && projectId !== '' && {projectId}),
     // projectId가 null/undefined가 아닐 때만 추가
   };
