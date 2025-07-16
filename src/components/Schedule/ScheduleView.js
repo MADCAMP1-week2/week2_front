@@ -38,7 +38,7 @@ const ScheduleView = ({ date }) => {
       {schedules
         .filter(s => dayjs(s.start).hour() === hour)
         .map(s => (
-          <View key={s.id} style={styles.eventBox}>
+          <View key={s._id} style={styles.eventBox}>
             <Text numberOfLines={1} style={styles.eventText}>
               {s.title}
             </Text>

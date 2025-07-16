@@ -73,7 +73,7 @@ function CalendarGrid({ dates, progress, mode }) {
   return (
     <AnimatedFlatList
       data={dates}
-      keyExtractor={(d) => d.format('YYYY-MM-DD')}
+      keyExtractor={(d, i) => `${d.format('YYYY-MM-DD')}-${i}`}
       numColumns={7}
       scrollEnabled={false}
       renderItem={renderItem}

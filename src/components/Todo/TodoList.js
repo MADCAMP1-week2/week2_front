@@ -9,7 +9,7 @@ const TodoList = ({date, projectId}) => {
   return (
     <FlatList
       data={todos}
-      keyExtractor={item => item.id.toString()}
+      keyExtractor={item => item._id.toString()}
       renderItem={renderItem}
       contentContainerStyle={{paddingHorizontal: 16}}
       style={styles.container}

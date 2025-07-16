@@ -13,7 +13,6 @@ export const fetchTodos = async (date, projectId) => {
 
   try {
     const res = await api.get('/api/todos', {params});
-    console.log(res.data);
     return res.data;
   } catch (error) {
     console.error('🛑 TODO 불러오기 오류:', error);
