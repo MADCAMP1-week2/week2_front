@@ -28,6 +28,7 @@ import HomeScreen from '@screens/HomeScreen';
 import SettingsScreen from '@screens/SettingsScreen';
 import MainScreen from '@screens/MainScreen';
 import ProjectScreen from './src/screens/ProjectScreen';
+import RankScreen from './src/screens/RankScreen';
 import AnimatedBottomBar from './src/components/Navigation/BottomBar';
 
 // 탭 네비게이터
@@ -39,8 +40,9 @@ function TabNavigator() {
       screenOptions={{
         headerShown: false,
       }}>
-      <Tab.Screen name="Project" component={ProjectScreen} />
       <Tab.Screen name="Home" component={MainScreen} />
+      <Tab.Screen name="Project" component={ProjectScreen} />
+      <Tab.Screen name="Rank" component={RankScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );
