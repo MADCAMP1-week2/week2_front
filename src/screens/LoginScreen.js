@@ -10,6 +10,8 @@ import {AuthContext} from '@contexts/AuthContext';
 import {loginRequest} from '@api/auth';
 import greetingStyles from '../styles/greetingStyles';
 import axios from 'axios';
+import Config from 'react-native-config';
+
 
 const LoginScreen = () => {
   const {login} = useContext(AuthContext);
@@ -46,7 +48,7 @@ const LoginScreen = () => {
       console.log("Dd")
       // const res = await loginRequest(payload, abortRef.current.signal);
       const res = await axios.post(
-        `http://192.249.26.139:3000/api/auth/login`,
+        `${Config.BACKEND_URL}/api/auth/login`,
         payload,
         {
           // ※ AbortController·인터셉터 모두 제거
