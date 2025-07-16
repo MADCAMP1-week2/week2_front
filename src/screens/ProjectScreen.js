@@ -41,7 +41,11 @@ const ProjectScreen = () => {
       <Text>프로젝트 수: {projects.length}</Text>
       {/* 목록 출력용 예시 */}
       {projects.map(p => (
-        <Text key={p._id}>• {p.name}</Text>
+        <View key={p._id}>
+          <Text>{p.name}</Text>
+          <Text>{p.description}</Text>
+          <Text>{p.isActive ? '진행중' : '종료'}</Text>
+        </View>
       ))}
     </View>
   );
