@@ -30,7 +30,7 @@ import DayBox from './DateBox';
 
 // ───────── Layout Const ─────────
 const { height: H, width: W } = Dimensions.get('window');
-const H_MIN = 32, H_WEEK = 140, H_NAVI = 65, H_FULL = H;
+const H_MIN = 24, H_WEEK = 140, H_NAVI = 65, H_FULL = H;
 const CELL_H = 75, H_GAP = 2, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
 const TITLE_H = 46, HEADER_H = 20;

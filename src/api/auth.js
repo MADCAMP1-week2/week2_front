@@ -3,12 +3,10 @@ import DeviceInfo from 'react-native-device-info';
 
 //login 요청
 export const loginRequest = async (payload, signal) => {
-  console.log("hihi");
   const res = await api.post('/api/auth/login', payload, {
     signal, // ← 추가
     validateStatus: status => status === 200 || status === 401,
   });
-  console.log("hihihi");
 
   return res;
 };

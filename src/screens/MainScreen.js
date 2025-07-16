@@ -15,7 +15,7 @@ import Header from '@components/TopBar/Header';
 import Score from '@components/TopBar/Score';
 
 const { height: H, width: W } = Dimensions.get('window');
-const H_MIN = 32, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
+const H_MIN = 24, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
 const CELL_H = 75, H_GAP = 4, V_GAP = 6, ROW_H = CELL_H + V_GAP * 2;
 const HANDLE_H = 6, HANDLE_MV = 10; // handle height / marginVert
 const TITLE_H = 46, HEADER_H = 20;
@@ -80,7 +80,6 @@ const MainScreen = () => {
         stars={35}
         onRefresh={() => console.log('새로고침')}
       />
-      <Text>{useHomeUIStore(state => state.selectedDate).toDateString()}</Text>
       <TwoColumnLayout progress={progress} />
       
       {/* <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} /> */}
