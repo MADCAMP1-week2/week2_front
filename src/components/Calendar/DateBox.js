@@ -21,7 +21,7 @@ export default function DayBox({ date, inMonth, style }) {
 
   useDerivedValue(() => {
     scale.value = withTiming(isSelected.value ? 1.15 : 1, { duration: 150 });
-    borderWidth.value = withTiming(isSelected.value ? 1 : 0, { duration: 150 });
+    borderWidth.value = withTiming(isSelected.value ? 1 : 0, { duration: 20 });
   });
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -33,7 +33,6 @@ export default function DayBox({ date, inMonth, style }) {
     const showDateModal = useModalStore.getState().showDateModal;
     if (isSelected.value) {
       // 같은 날짜를 다시 누르면 모달 표시
-      console.log("ddd");
       showDateModal(key); 
     } else {
       // 날짜 선택

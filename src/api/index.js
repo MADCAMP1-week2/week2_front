@@ -37,6 +37,7 @@ api.interceptors.response.use(
     }
 
     try {
+      console.log("refreshing");
       refreshing = true;
       const { refreshToken, user } = await authStorage.getToken();
 

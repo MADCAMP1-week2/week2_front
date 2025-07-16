@@ -13,6 +13,7 @@ import { State } from 'react-native-gesture-handler';
 
 import Header from '@components/TopBar/Header';
 import Score from '@components/TopBar/Score';
+import {DateModal} from '@components/Modals/DateModal';
 
 const { height: H, width: W } = Dimensions.get('window');
 const H_MIN = 24, H_WEEK = 180, H_NAVI = 65, H_FULL = H;
@@ -85,6 +86,7 @@ const MainScreen = () => {
       {/* <Animated.View style={[styles.backdrop, backdropAnimatedStyle]} /> */}
       {/* Your components */}
       <HandleCalendarPanel y={y} progress={progress} style={styles.panel} />
+      <DateModal />
     </SafeAreaView>
   </View>
   );
