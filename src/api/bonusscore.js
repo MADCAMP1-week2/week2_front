@@ -1,4 +1,5 @@
 import api from './index';
+import dayjs from 'dayjs';
 
 // 보너스 점수 가져오기 (로그인한 유저)
 export const fetchBonusScore = async date => {
