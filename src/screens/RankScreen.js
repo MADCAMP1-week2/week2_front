@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {fetchBonusRank} from '../api/bonusscore';
+import dayjs from 'dayjs';
 
 const RankScreen = () => {
   const [rank, setRank] = useState([]);
