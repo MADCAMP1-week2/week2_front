@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 
 const TodoItem = ({ todo, onToggle }) => (
-  <Pressable style={styles.item} onPress={() => onToggle(todo.id)}>
+  <Pressable style={styles.item} onPress={() => onToggle(todo._id)}>
     <Text style={[styles.title, todo.completed && styles.completed]}>{todo.title}</Text>
   </Pressable>
 );

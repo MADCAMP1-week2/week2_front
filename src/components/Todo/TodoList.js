@@ -10,7 +10,7 @@ dayjs.locale('ko'); // 한글 요일
 
 const TodoList = ({date, projectId}) => {
   const {data: todos = []} = useTodos(date, projectId);
-  const renderItem = ({item}) => <TodoItem todo={item} onToggle={() => {}} />;
+  const renderItem = ({item}) => <TodoItem todo={item} onToggle={() => {item.completed = !item.completed}} />;
   const selectedDate = useHomeUIStore(state => state.selectedDate);
   const formattedDate = dayjs(selectedDate).format('M.D.(dd)');
   return (

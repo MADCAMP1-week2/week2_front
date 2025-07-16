@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { useModalStore } from '@store/modalStore';
+import TodoForm from './TodoForm';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -54,6 +55,7 @@ export function DateModal() {
         }}
       >
         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{modalDateKey} 일정추가</Text>
+        <TodoForm />
       </Animated.View>
     </Animated.View>
   );
